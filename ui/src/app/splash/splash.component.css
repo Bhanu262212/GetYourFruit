@@ -1,0 +1,29 @@
+.splash-container {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #1f1c2c, #4b2a8b);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  animation: fadeOut 1s ease forwards 4s;
+}
+
+.logo {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

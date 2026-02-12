@@ -1,0 +1,54 @@
+<div class="container">
+
+  <!-- TOP HEADER -->
+  <div class="top-header">
+
+    <!-- LEFT SIDE -->
+    <div class="header-left">
+      <h2>Dropshipping</h2>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="header-right">
+
+      <!-- Search -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search or Press '/' for commands">
+      </div>
+
+      <!-- Filters -->
+      <select class="filter">
+        <option>2 Feb - 14 Apr</option>
+      </select>
+
+      <select class="filter">
+        <option>Payment Status</option>
+      </select>
+
+      <select class="filter">
+        <option>Category</option>
+      </select>
+
+      <!-- Notification -->
+      <div class="icon-btn">🔔</div>
+
+      <!-- Profile -->
+      <div class="profile-circle">
+        BP
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Loading products...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div class="grid">
+    <app-product-card
+      *ngFor="let product of products"
+      [product]="product">
+    </app-product-card>
+  </div>
+
+</div>
