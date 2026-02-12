@@ -1,0 +1,175 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+*.zip
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+pom.xml.bak
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+.m2/
+
+# Spring Boot
+application-local.properties
+application-dev.properties
+application-prod.properties
+*.log
+
+# IDE - IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+.classpath
+.project
+.settings/
+*.sublime-workspace
+
+# IDE - VS Code
+.vscode/
+*.code-workspace
+
+# IDE - Eclipse
+bin/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+.directory
+*.swp
+*.swo
+
+# Node & Angular
+ui/node_modules/
+ui/dist/
+ui/build/
+ui/.angular/
+ui/*.log
+npm-debug.log
+yarn-error.log
+ui/src/**/*.js
+!ui/src/**/*.module.js
+ui/.env
+ui/.env.local
+ui/.env.development.local
+ui/.env.test.local
+ui/.env.production.local
+
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+build/
+*.min.js
+*.min.css
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# System files
+*.bak
+*.tmp
+*.temp
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Credentials and sensitive files
+*.pem
+*.key
+*.p12
+secrets.properties
+.ssh/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.h2.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+
+# Package manager
+package-lock.json
+yarn.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+*.tgz
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# IDE specific files
+.history/
+.vscode-test
+.vscode-test.log
+
+# Compiled Java class files
+*.class
+
+# Compiled Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Misc
+.DS_Store
+desktop.ini
+
+# Build artifacts and compiled output
+/out/
+/bin/
+/gen/
+
+# Gradle
+.gradle/
+build/
+gradle.properties
+
+# SonarQube
+.sonarlint/
+
+# JProfiler
+*.jps
+
+# Checkstyle
+checkstyle-result.xml
+
