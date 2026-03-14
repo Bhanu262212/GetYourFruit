@@ -5,7 +5,7 @@ import { CartComponent } from './cart/cart.component';
 import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
-  { path: '', component: SplashComponent, data: { animation: 'SplashPage' } },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, data: { animation: 'LoginPage' } },
   { path: 'home', component: DropshippingComponent, data: { animation: 'HomePage' } },
   { path: 'cart', component: CartComponent, data: { animation: 'CartPage' } }
