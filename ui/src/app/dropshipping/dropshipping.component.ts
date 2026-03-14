@@ -159,4 +159,8 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     alert(`Proceeding to payment... Total: $${this.getTotalPayment()}`);
     // Potentially make a backend call here to save the cart
   }
+
+  onLogout() {
+    this.router.navigate(['/login']);
+  }
 }
