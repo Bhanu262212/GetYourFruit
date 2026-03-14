@@ -1,34 +1,24 @@
 <div class="card">
+  <!-- Top Right Action (Heart) -->
+  <button class="heart-btn">
+    ♡
+  </button>
 
   <div class="image-wrapper">
-    <img [src]="product.imageUrl"
-         alt="{{product.productName}}"
-         class="product-image">
+    <img [src]="product.imageUrl" alt="{{product.productName}}" class="product-image">
   </div>
 
-  <div class="platform-rating">
-    <span class="platform-name">Platform</span>
-    <span class="rating">⭐ 4.8</span>
-  </div>
+  <div class="card-bottom">
+    <h3 class="title">{{ product.productName }}</h3>
 
-  <h3 class="title">{{ product.productName }}</h3>
-
-  <div class="info">
-    <div>
-      <div class="label">Price</div>
-      <div class="value">₹ {{ product.price }}</div>
-    </div>
-
-    <div>
-      <div class="label">Stock</div>
-      <div class="value">{{ product.stockStatus }}</div>
+    <div class="price-row">
+      <div class="prices">
+        <span class="current-price">${{ product.price }}</span>
+        <span class="old-price" *ngIf="product.price < 1500">${{ product.price + 60 }}</span> <!-- Mock old price -->
+      </div>
+      <button class="add-btn" (click)="onAddToCart()">
+        <span class="arrow-icon">↗</span>
+      </button>
     </div>
   </div>
-
-  <!-- Buttons -->
-  <div class="button-group">
-    <button class="cart-btn">Add to Cart</button>
-    <button class="buy-btn">Buy Now</button>
-  </div>
-
 </div>

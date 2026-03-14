@@ -28,7 +28,7 @@ public class CartServiceImpl implements CartService {
            log.debug("Product Doesnt exist in cart, adding new product to cart");
             cartRepository.save(cartBuilder);
         } else {
-            cartRepository.patchCart(cartBuilder);
+            cartRepository.save(cartBuilder);
         }
 
     }
