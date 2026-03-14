@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ProductRepository extends MongoRepository<Product, String> {
 
+    // Search products whose productName contains the input (case-insensitive)
     List<Product> findByProductNameContainingIgnoreCase(String input);
 
 }

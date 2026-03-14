@@ -1,20 +1,44 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Ensure forms module is imported
+import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterModule, CommonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
+  username = '';
+  password = '';
+  errorMsg = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   onLogin() {
-    // Mock login, just navigate to home
-    this.router.navigate(['/home']);
+    this.errorMsg = '';
+
+    if (!this.username || !this.password) {
+        this.errorMsg = 'Username and password are required.';
+        return;
+    }
+
+    this.http.get(`http://localhost:8080/validate?Username=${this.username}&Password=${this.password}`).subscribe({
+      next: (isValid: any) => {
+        if (isValid) {
+          this.router.navigate(['/home']);
+        } else {
+          this.errorMsg = 'Invalid username or password.';
+        }
+      },
+      error: (err) => {
+        console.error('Login error', err);
+        // Fallback for demo purposes if backend isn't ready, or handle error
+        this.errorMsg = 'Error communicating with server.';
+      }
+    });
   }
 }
