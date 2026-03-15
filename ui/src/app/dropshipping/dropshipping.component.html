@@ -18,8 +18,40 @@
     <div class="nav-right">
       <div class="icon-btn">🔔</div>
       <div class="icon-btn">♡</div>
-      <div class="profile-pic" style="cursor: pointer" (click)="onLogout()" title="Logout">
-        <img src="https://i.pravatar.cc/150?img=11" alt="Profile">
+      <div class="profile-container">
+        <div class="profile-pic black-profile" (click)="toggleProfileMenu()" title="Profile">
+          <!-- SVG icon for a default black user profile -->
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/>
+          </svg>
+        </div>
+        <div class="profile-menu" *ngIf="showProfileMenu">
+          <div class="menu-item" (click)="viewAccountDetails()">Account Details</div>
+          <div class="menu-item logout" (click)="logout()">Logout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ACCOUNT DETAILS MODAL ===== -->
+  <div class="modal-overlay" *ngIf="showAccountDetails">
+    <div class="modal-content account-details">
+      <div class="modal-header">
+        <h3>Account Details</h3>
+        <button class="close-btn" (click)="closeAccountDetails()">×</button>
+      </div>
+      <div class="modal-body" *ngIf="userDetails">
+        <div class="detail-row"><strong>Username:</strong> <span>{{ userDetails.username }}</span></div>
+        <div class="detail-row"><strong>Email:</strong> <span>{{ userDetails.email || 'N/A' }}</span></div>
+        <div class="detail-row"><strong>Phone:</strong> <span>{{ userDetails.phoneNumber || 'N/A' }}</span></div>
+        <div class="detail-row"><strong>Address:</strong> <span>{{ userDetails.defaultShippingAddress || 'N/A' }}</span></div>
+        <div class="detail-row"><strong>City:</strong> <span>{{ userDetails.city || 'N/A' }}</span></div>
+        <div class="detail-row"><strong>State:</strong> <span>{{ userDetails.state || 'N/A' }}</span></div>
+        <div class="detail-row"><strong>Zip:</strong> <span>{{ userDetails.zipCode || 'N/A' }}</span></div>
+        <div class="detail-row"><strong>Country:</strong> <span>{{ userDetails.country || 'N/A' }}</span></div>
+      </div>
+      <div class="modal-body" *ngIf="!userDetails">
+        Loading details...
       </div>
     </div>
   </div>

@@ -40,4 +40,14 @@ public class UserDetailsResource {
         return ResponseEntity.ok(userDetailsService.saveUserDetails(user));
     }
 
+    @GetMapping("/getUserDetails")
+    public ResponseEntity<?> getUserDetails(String id) {
+        log.info("Fetching user details for id: {}", id);
+        User user = userDetailsService.getUserById(id);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
 }
