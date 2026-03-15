@@ -2,7 +2,9 @@
 .layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
   background-color: #f2f2e8;
   font-family: 'Inter', sans-serif;
 }
@@ -245,7 +247,8 @@
   display: flex;
   gap: 24px;
   padding: 0 16px 16px;
-  height: calc(100vh - 100px); /* Calculate height to allow scrolling within children */
+  flex: 1;
+  min-height: 0; /* Important for flex children to be able to shrink and scroll */
   overflow: hidden;
 }
 
@@ -259,6 +262,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   background-color: #fcfcf9;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .section-header {
@@ -368,7 +372,7 @@
   flex-direction: column;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   background-color: #fcfcf9;
-  overflow-y: auto;
+  min-height: 0;
 }
 
 .cart-header {
