@@ -3,6 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -26,7 +27,7 @@ export class LoginComponent {
         return;
     }
 
-    this.http.get(`http://localhost:8080/validate?Username=${this.username}&Password=${this.password}`).subscribe({
+    this.http.get(`${environment.apiUrl}/validate?Username=${this.username}&Password=${this.password}`).subscribe({
       next: (user: any) => {
         if (user && user.username) {
           localStorage.setItem('username', user.username);
