@@ -6,7 +6,12 @@
 }
 
 body {
-  background: #f6f7fb;
+  background: #f4f3eb;
+}
+
+.app-logo {
+  max-width: 150px;
+  height: auto;
 }
 
 /* ================= LAYOUT ================= */
