@@ -14,12 +14,19 @@
 }
 
   .login-card {
-    background-color: white;
+    background-color: #f4f3eb;
     padding: 2.5rem 3rem;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     width: 100%;
-    max-width: 400px;
+    max-width: 800px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
   }
 
   .logo-area {
@@ -72,7 +79,11 @@
   }
 
   .input-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: 0;
+  }
+
+  .input-group.full-width {
+    grid-column: 1 / -1;
   }
 
   .input-group label {
