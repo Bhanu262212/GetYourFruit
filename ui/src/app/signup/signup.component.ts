@@ -38,8 +38,10 @@ export class SignupComponent {
       },
       error: (err) => {
         console.error('Signup error', err);
-        // Sometimes backend returns 200 OK but it's parsed as error if it doesn't return JSON
-        if (err.status === 200) {
+        if (err.status === 409) {
+            this.errorMsg = 'Username already exists.';
+        } else if (err.status === 200) {
+            // Sometimes backend returns 200 OK but it's parsed as error if it doesn't return JSON
             this.router.navigate(['/login']);
         } else {
             this.errorMsg = 'Signup failed. Please try again.';

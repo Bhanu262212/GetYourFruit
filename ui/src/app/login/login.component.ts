@@ -27,8 +27,10 @@ export class LoginComponent {
     }
 
     this.http.get(`http://localhost:8080/validate?Username=${this.username}&Password=${this.password}`).subscribe({
-      next: (isValid: any) => {
-        if (isValid) {
+      next: (user: any) => {
+        if (user && user.username) {
+          localStorage.setItem('username', user.username);
+          localStorage.setItem('userId', user.id);
           this.router.navigate(['/home']);
         } else {
           this.errorMsg = 'Invalid username or password.';
@@ -36,8 +38,12 @@ export class LoginComponent {
       },
       error: (err) => {
         console.error('Login error', err);
-        // Fallback for demo purposes if backend isn't ready, or handle error
-        this.errorMsg = 'Error communicating with server.';
+        if (err.status === 401) {
+            this.errorMsg = 'Invalid username or password.';
+        } else {
+            // Fallback for demo purposes if backend isn't ready, or handle error
+            this.errorMsg = 'Error communicating with server.';
+        }
       }
     });
   }

@@ -18,9 +18,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public boolean validateUser(String username, String password) {
 
         log.debug("Validating user with username: {}", username);
-        String encryptedPassword = EncryptionUtility.encrypt(password);
         User user = userRepository.getUserByUsername(username);
-        return encryptedPassword.equals(user.getPassword());
+        if (user == null) {
+            return false;
+        }
+        return EncryptionUtility.decrypt(password, user.getPassword());
     }
 
     public User getUserDetailsByUsername(String username) {
