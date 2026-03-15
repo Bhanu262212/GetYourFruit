@@ -3,6 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-signup',
@@ -58,7 +59,7 @@ export class SignupComponent {
       country: this.country
     };
 
-    this.http.post('http://localhost:8080/saveUser', userPayload).subscribe({
+    this.http.post(`${environment.apiUrl}/saveUser`, userPayload).subscribe({
       next: () => {
         // Assuming success means we can navigate to login
         this.router.navigate(['/login']);
