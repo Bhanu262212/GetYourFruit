@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: white;
+  background-color: #f2f2e8;
   font-family: 'Inter', sans-serif;
 }
 
@@ -22,8 +22,7 @@
   border-radius: 20px;
   margin: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  background-color: #f4f3eb;
-  height: 80px;
+  background-color: #fcfcf9;
 }
 
 .logo-area {
@@ -246,6 +245,8 @@
   display: flex;
   gap: 24px;
   padding: 0 16px 16px;
+  height: calc(100vh - 100px); /* Calculate height to allow scrolling within children */
+  overflow: hidden;
 }
 
 
@@ -256,7 +257,8 @@
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  background-color: #f4f3eb;
+  background-color: #fcfcf9;
+  overflow-y: auto;
 }
 
 .section-header {
@@ -365,7 +367,8 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  background-color: #f4f3eb;
+  background-color: #fcfcf9;
+  overflow-y: auto;
 }
 
 .cart-header {
