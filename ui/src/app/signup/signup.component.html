@@ -1,0 +1,75 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="logo-area">
+      <img src="logo.png" alt="Southern Groves Logo" class="app-logo">
+    </div>
+
+    <h2 class="welcome-text">Create Account</h2>
+    <p class="subtitle">Please enter your details to sign up.</p>
+
+    <form (ngSubmit)="onSignup()" class="login-form">
+
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" [(ngModel)]="username" name="username" placeholder="Choose a username" required>
+        </div>
+
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="Create a password" required>
+        </div>
+
+        <div class="input-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+        </div>
+
+        <div class="input-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input type="number" id="phoneNumber" [(ngModel)]="phoneNumber" name="phoneNumber" placeholder="Enter your phone number">
+        </div>
+
+        <div class="input-group">
+          <label for="city">City</label>
+          <input type="text" id="city" [(ngModel)]="city" name="city" placeholder="Enter your city">
+        </div>
+
+        <div class="input-group">
+          <label for="state">State</label>
+          <input type="text" id="state" [(ngModel)]="state" name="state" placeholder="Enter your state">
+        </div>
+
+        <div class="input-group">
+          <label for="zipCode">Zip Code</label>
+          <input type="text" id="zipCode" [(ngModel)]="zipCode" name="zipCode" placeholder="Enter your zip code">
+        </div>
+
+        <div class="input-group">
+          <label for="country">Country</label>
+          <input type="text" id="country" [(ngModel)]="country" name="country" placeholder="Enter your country">
+        </div>
+
+        <div class="input-group full-width">
+          <label for="defaultShippingAddress">Default Shipping Address</label>
+          <input type="text" id="defaultShippingAddress" [(ngModel)]="defaultShippingAddress" name="defaultShippingAddress" placeholder="Enter your shipping address">
+        </div>
+      </div>
+
+      <div *ngIf="errorMsg" class="error-msg">
+        {{ errorMsg }}
+      </div>
+
+      <button type="submit" class="login-btn">Sign Up</button>
+    </form>
+
+    <div class="register-link">
+      Already have an account? <a routerLink="/login">Log in</a>
+    </div>
+  </div>
+</div>
