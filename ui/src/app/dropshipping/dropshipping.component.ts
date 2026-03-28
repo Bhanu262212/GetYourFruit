@@ -83,6 +83,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   }
 
   private loadCart() {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     const userId = localStorage.getItem('userId');
     if (!userId || !this.products || this.products.length === 0) return;
 
@@ -155,6 +156,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   // ==== CART FUNCTIONS ====
 
   onAddToCart(product: Product) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
@@ -183,6 +185,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   }
 
   removeFromCart(index: number) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     const item = this.cartItems[index];
     const userId = localStorage.getItem('userId');
     if (item && userId) {
@@ -197,6 +200,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   }
 
   clearCart() {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     const userId = localStorage.getItem('userId');
     if (userId) {
       this.productService.clearCart(userId).subscribe({
@@ -212,6 +216,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   }
 
   increaseQty(index: number) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     this.cartItems[index].quantity += 1;
     const item = this.cartItems[index];
     const userId = localStorage.getItem('userId');
@@ -221,6 +226,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   }
 
   decreaseQty(index: number) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     if (this.cartItems[index].quantity > 1) {
       this.cartItems[index].quantity -= 1;
       const item = this.cartItems[index];
@@ -278,6 +284,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     this.showAccountDetails = true;
     this.userDetails = null;
 
+    if (typeof window === 'undefined' || !window.localStorage) return;
     const userId = localStorage.getItem('userId');
     if (userId) {
       this.http.get(`${environment.apiUrl}/getUserDetails?id=${userId}`).subscribe({
@@ -299,8 +306,10 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   }
 
   logout() {
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('username');
+      localStorage.removeItem('userId');
+    }
     this.router.navigate(['/login']);
   }
 
