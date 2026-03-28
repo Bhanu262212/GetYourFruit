@@ -372,7 +372,9 @@
   flex-direction: column;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   background-color: #fcfcf9;
-  min-height: 0;
+  align-self: flex-start;
+  max-height: 100%;
+  overflow-y: auto;
 }
 
 .cart-header {
@@ -397,8 +399,6 @@
 }
 
 .cart-items {
-  flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
