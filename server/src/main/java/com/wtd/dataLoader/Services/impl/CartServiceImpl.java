@@ -38,4 +38,22 @@ public class CartServiceImpl implements CartService {
             cartRepository.save(existingCart);
         }
     }
+
+    @Override
+    public void deleteCartItem(String productId, String userId) {
+        log.debug("Deleting product {} from cart for user {}", productId, userId);
+        Cart existingCart = cartRepository.findByProductIdAndUserId(productId, userId);
+        if (existingCart != null) {
+            cartRepository.deleteById(existingCart.getId());
+        }
+    }
+
+    @Override
+    public void clearCart(String userId) {
+        log.debug("Clearing cart for user {}", userId);
+        java.util.List<Cart> items = cartRepository.getCartByUserId(userId);
+        for (Cart item : items) {
+            cartRepository.deleteById(item.getId());
+        }
+    }
 }

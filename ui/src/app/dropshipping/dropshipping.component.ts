@@ -178,15 +178,29 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     const item = this.cartItems[index];
     const userId = localStorage.getItem('userId');
     if (item && userId) {
-      // In a real app we'd have a delete endpoint, but for now we set quantity to 0 or leave it to user implementation
-      // Just removing locally for now since there's no delete item API provided
-      this.cartItems.splice(index, 1);
+      this.productService.deleteCartItem(userId, item.id).subscribe({
+        next: () => {
+          this.cartItems.splice(index, 1);
+          console.log('Item deleted from backend cart');
+        },
+        error: (err) => console.error('Failed to delete item from backend cart', err)
+      });
     }
   }
 
   clearCart() {
-    this.cartItems = [];
-    // API for clearing cart is missing, ideally we'd call it here
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      this.productService.clearCart(userId).subscribe({
+        next: () => {
+          this.cartItems = [];
+          console.log('Cart cleared in backend');
+        },
+        error: (err) => console.error('Failed to clear backend cart', err)
+      });
+    } else {
+      this.cartItems = [];
+    }
   }
 
   increaseQty(index: number) {

@@ -35,4 +35,16 @@ public class CartResource {
         log.info("Fetching cart for user {}", userId);
         return cartService.getCartByUserId(userId);
     }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{userId}/{productId}")
+    public void deleteCartItem(@org.springframework.web.bind.annotation.PathVariable String userId, @org.springframework.web.bind.annotation.PathVariable String productId) {
+        log.info("Deleting product {} from cart for user {}", productId, userId);
+        cartService.deleteCartItem(productId, userId);
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{userId}")
+    public void clearCart(@org.springframework.web.bind.annotation.PathVariable String userId) {
+        log.info("Clearing cart for user {}", userId);
+        cartService.clearCart(userId);
+    }
 }

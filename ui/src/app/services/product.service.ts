@@ -34,4 +34,12 @@ export class ProductService {
   addToCart(cartItem: any): Observable<any> {
     return this.http.post(`${environment.apiUrl}/cart`, cartItem);
   }
+
+  deleteCartItem(userId: string, productId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/cart/${userId}/${productId}`);
+  }
+
+  clearCart(userId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/cart/${userId}`);
+  }
 }
