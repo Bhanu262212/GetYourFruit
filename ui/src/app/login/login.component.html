@@ -1,0 +1,39 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="logo-area">
+      <img src="logo.png" alt="Southern Groves Logo" class="app-logo">
+    </div>
+
+    <h2 class="welcome-text">Welcome Back</h2>
+    <p class="subtitle">Please login to your account.</p>
+
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" [(ngModel)]="username" name="username" placeholder="Enter your username" required>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="Enter your password" required>
+      </div>
+
+      <div *ngIf="errorMsg" class="error-msg">
+        {{ errorMsg }}
+      </div>
+
+      <div class="form-actions">
+        <label class="remember-me">
+          <input type="checkbox"> Remember me
+        </label>
+        <a href="#" class="forgot-password">Forgot Password?</a>
+      </div>
+
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+
+    <div class="register-link">
+      Don't have an account? <a routerLink="/signup">Sign up</a>
+    </div>
+  </div>
+</div>

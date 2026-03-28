@@ -19,10 +19,11 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   isLoading: boolean = true;
   noResults: boolean = false;
 
-  // store current search text so template/CSS can keep the box expanded when it has content
-  searchValue: string = '';
+  // Cart state
+  cartItems: any[] = [];
+  promoDiscountPercentage: number = 0.12; // 12%
 
-  // sort option state
+  searchValue: string = '';
   sortOption: string = 'default';
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
@@ -33,9 +34,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     this.loadAll();
   }
 
-  ngAfterViewInit(): void {
-    // view child available after view init
-  }
+  ngAfterViewInit(): void {}
 
   @HostListener('window:keydown', ['$event'])
   handleGlobalKeydown(event: KeyboardEvent) {
@@ -50,17 +49,13 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     this.errorMessage = '';
     this.productService.getAllProducts().subscribe({
       next: (data) => {
-        console.log('Products received:', data);
         this.products = data;
-        // apply sorting after setting products
         this.applySort();
         this.noResults = (data == null || data.length === 0);
         this.isLoading = false;
-        // when loading all (no explicit search), clear searchValue so box can collapse
         this.searchValue = '';
       },
       error: (error) => {
-        console.error('Error fetching products:', error);
         this.errorMessage = 'Failed to load products. Please check if the server is running.';
         this.isLoading = false;
         this.noResults = false;
@@ -70,7 +65,6 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
 
   onSearch(query: string) {
     const q = query?.trim() || '';
-    // keep the current text so CSS can keep box expanded
     this.searchValue = q;
 
     if (q === '') {
@@ -83,13 +77,11 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     this.productService.searchProducts(q).subscribe({
       next: (data) => {
         this.products = data || [];
-        // apply sorting to search results
         this.applySort();
         this.noResults = (this.products.length === 0);
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Search failed:', err);
         this.errorMessage = 'Search failed. Please try again.';
         this.isLoading = false;
         this.noResults = false;
@@ -106,30 +98,69 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     if (!this.products || this.products.length === 0) return;
 
     const copy = [...this.products];
-
     switch (this.sortOption) {
-      case 'name-asc':
-        copy.sort((a, b) => (a.productName || '').localeCompare(b.productName || ''));
-        break;
-      case 'name-desc':
-        copy.sort((a, b) => (b.productName || '').localeCompare(a.productName || ''));
-        break;
-      case 'price-asc':
-        copy.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
-        break;
-      case 'price-desc':
-        copy.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
-        break;
-      default:
-        // default: keep server order (or sort by id for stability)
-        copy.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
-        break;
+      case 'name-asc': copy.sort((a, b) => (a.productName || '').localeCompare(b.productName || '')); break;
+      case 'name-desc': copy.sort((a, b) => (b.productName || '').localeCompare(a.productName || '')); break;
+      case 'price-asc': copy.sort((a, b) => (a.price ?? 0) - (b.price ?? 0)); break;
+      case 'price-desc': copy.sort((a, b) => (b.price ?? 0) - (a.price ?? 0)); break;
+      default: copy.sort((a, b) => (a.id || '').localeCompare(b.id || '')); break;
     }
-
     this.products = copy;
   }
 
-  goToCart() {
-    this.router.navigate(['/cart']);
+  // ==== CART FUNCTIONS ====
+
+  onAddToCart(product: Product) {
+    const existingItem = this.cartItems.find(item => item.id === product.id);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      this.cartItems.push({
+        ...product,
+        quantity: 1,
+        color: 'Silver', // Mock data as per UI
+        storage: '8/256' // Mock data as per UI
+      });
+    }
+  }
+
+  removeFromCart(index: number) {
+    this.cartItems.splice(index, 1);
+  }
+
+  clearCart() {
+    this.cartItems = [];
+  }
+
+  increaseQty(index: number) {
+    this.cartItems[index].quantity += 1;
+  }
+
+  decreaseQty(index: number) {
+    if (this.cartItems[index].quantity > 1) {
+      this.cartItems[index].quantity -= 1;
+    }
+  }
+
+  getTotalPrice(): number {
+    return this.cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  }
+
+  getDiscount(): number {
+    const total = this.getTotalPrice();
+    return Math.round(total * this.promoDiscountPercentage);
+  }
+
+  getTotalPayment(): number {
+    return this.getTotalPrice() - this.getDiscount();
+  }
+
+  proceedToPayment() {
+    alert(`Proceeding to payment... Total: $${this.getTotalPayment()}`);
+    // Potentially make a backend call here to save the cart
+  }
+
+  onLogout() {
+    this.router.navigate(['/login']);
   }
 }

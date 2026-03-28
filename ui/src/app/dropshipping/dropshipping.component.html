@@ -1,91 +1,130 @@
 <div class="layout">
 
-  <!-- ===== LEFT SIDEBAR ===== -->
-  <div class="sidebar">
-
-    <div class="logo">
-      𝓖𝓮𝓽 𝓨𝓸𝓾𝓻 𝓕𝓻𝓾𝓲𝓽
+  <!-- ===== TOP NAVIGATION ===== -->
+  <div class="top-nav">
+    <div class="logo-area">
+      <img src="logo.png" alt="Southern Groves Logo" class="app-logo">
     </div>
 
-    <ul class="menu">
-      <li class="active">🏠 Dashboard</li>
-      <li>📦 Orders</li>
-      <li>🛍 Products</li>
-      <li>👥 Customers</li>
-      <li>📊 Analytics</li>
-      <li>💬 Messages</li>
-      <li>⚙ Settings</li>
+    <ul class="nav-links">
+      <li><i class="icon-dashboard"></i> Dashboard</li>
+      <li class="active"><i class="icon-products"></i> Products</li>
+      <li><i class="icon-orders"></i> My Orders</li>
+      <li><i class="icon-wishlist"></i> Wishlist</li>
+      <li class="cart-link"><i class="icon-cart"></i> Cart</li>
+      <li><i class="icon-settings"></i> Settings</li>
     </ul>
 
-    <div class="logout">
-      🚪 Logout
+    <div class="nav-right">
+      <div class="icon-btn">🔔</div>
+      <div class="icon-btn">♡</div>
+      <div class="profile-pic" style="cursor: pointer" (click)="onLogout()" title="Logout">
+        <img src="https://i.pravatar.cc/150?img=11" alt="Profile">
+      </div>
     </div>
-
   </div>
 
-  <!-- ===== MAIN CONTENT ===== -->
+  <!-- ===== MAIN CONTENT AREA ===== -->
   <div class="main-content">
 
-    <div class="top-header">
-
-
-      <div class="header-right">
-
-        <div class="search-box" [class.has-value]="searchValue !== ''">
-          <span class="search-icon" (click)="searchInput.focus()" title="Search">🔍</span>
-          <input #searchInput class="search-input" type="text" placeholder="Search" aria-label="Search" (input)="onSearch(searchInput.value)">
+    <!-- LEFT COLUMN: PRODUCTS -->
+    <div class="products-section">
+      <div class="section-header">
+        <h2>Cart Products</h2>
+        <div class="header-actions">
+          <div class="search-box" [class.has-value]="searchValue !== ''">
+            <span class="search-icon" (click)="searchInput.focus()" title="Search">🔍</span>
+            <input #searchInput class="search-input" type="text" placeholder="Search..." aria-label="Search" (input)="onSearch(searchInput.value)">
+          </div>
+          <button class="filter-btn">Filter <span class="filter-icon">≡</span></button>
+          <button class="create-order-btn">+ Create Order</button>
         </div>
+      </div>
 
-        <!-- Sort By dropdown -->
-        <select class="filter sort-select" #sortSelect (change)="onSortChange(sortSelect.value)">
-          <option value="default">Sort By</option>
-          <option value="name-asc">Name: A → Z</option>
-          <option value="name-desc">Name: Z → A</option>
-          <option value="price-asc">Price: Low → High</option>
-          <option value="price-desc">Price: High → Low</option>
-        </select>
+      <div class="categories">
+        <button class="category-btn active">Mobile</button>
+        <button class="category-btn">All Products</button>
+        <button class="category-btn">Grocery</button>
+        <button class="category-btn">Most Purchased</button>
+        <button class="category-btn">Shoes</button>
+        <button class="category-btn">Funtiture</button>
+      </div>
 
-        <select class="filter">
-          <option>Payment Status</option>
-        </select>
+      <div *ngIf="isLoading" class="loading">Loading products...</div>
+      <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+      <div *ngIf="noResults" class="no-results">No products found</div>
 
-        <div class="icon-btn" (click)="goToCart()" title="Cart">🛒</div>
-
-        <div class="icon-btn">🔔</div>
-
-        <div class="profile-circle">
-          BP
-        </div>
-
+      <div class="grid" *ngIf="!noResults">
+        <ng-container *ngFor="let product of products">
+          <app-product-card
+            [product]="product"
+            (addToCart)="onAddToCart($event)">
+          </app-product-card>
+        </ng-container>
       </div>
     </div>
 
-    <div *ngIf="isLoading" class="loading">Loading products...</div>
-    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+    <!-- RIGHT COLUMN: CART -->
+    <div class="cart-section">
+      <div class="cart-header">
+        <h2>Cart</h2>
+        <button class="delete-all-btn" (click)="clearCart()">Delete All</button>
+      </div>
 
-    <div *ngIf="noResults" class="no-results">No products found</div>
-
-    <div class="grid" *ngIf="!noResults">
-
-      <ng-container *ngFor="let product of products; let i = index">
-
-        <!-- Product Card -->
-        <app-product-card
-                [product]="product">
-        </app-product-card>
-
-        <!-- Ad Placeholder after every 6 products
-        <div *ngIf="(i + 1) % 3 === 0" class="ad-card">
-          <div class="ad-content">
-            <h3>Sponsored</h3>
-            <p>Your Advertisement Here</p>
+      <div class="cart-items">
+        <div class="cart-item" *ngFor="let item of cartItems; let i = index">
+          <input type="checkbox" class="item-checkbox" checked>
+          <div class="item-image-wrapper">
+            <img [src]="item.imageUrl" [alt]="item.productName">
           </div>
-        </div>-->
+          <div class="item-details">
+            <div class="item-title-row">
+               <h3>{{ item.productName }}</h3>
+               <button class="delete-item-btn" (click)="removeFromCart(i)">🗑</button>
+            </div>
+            <div class="item-specs">
+              <span class="spec-badge">{{ item.storage || '8/256' }}</span>
+              <span class="spec-color"><span class="color-dot"></span> {{ item.color || 'Silver' }}</span>
+            </div>
+            <div class="item-controls-row">
+              <div class="qty-controls">
+                <button (click)="decreaseQty(i)">-</button>
+                <span>{{ item.quantity }}</span>
+                <button (click)="increaseQty(i)" class="plus-btn">+</button>
+              </div>
+              <div class="item-total">Total ${{ item.price * item.quantity }}</div>
+            </div>
+          </div>
+        </div>
 
-      </ng-container>
+        <div *ngIf="cartItems.length === 0" class="empty-cart-msg">
+          Your cart is empty.
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="promo-box">
+          <span class="promo-icon">%</span> Promo Every User (12%)
+          <button class="change-promo-btn">Change Promo</button>
+        </div>
+
+        <div class="summary-row">
+          <span>Total Product Price</span>
+          <span class="val">${{ getTotalPrice() }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Discount</span>
+          <span class="val discount">-${{ getDiscount() }}</span>
+        </div>
+        <div class="summary-row total-row">
+          <span>Total Payment</span>
+          <span class="val">${{ getTotalPayment() }}</span>
+        </div>
+
+        <button class="proceed-btn" (click)="proceedToPayment()">Proceed to Payment</button>
+      </div>
 
     </div>
-
 
   </div>
 
