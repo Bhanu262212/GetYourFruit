@@ -28,6 +28,8 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   searchValue: string = '';
   sortOption: string = 'default';
 
+  currentView: 'products' | 'cart' = 'products';
+
   showProfileMenu: boolean = false;
   showAccountDetails: boolean = false;
   userDetails: any = null;

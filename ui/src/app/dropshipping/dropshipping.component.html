@@ -7,11 +7,10 @@
     </div>
 
     <ul class="nav-links">
-      <li><i class="icon-dashboard"></i> Dashboard</li>
-      <li class="active"><i class="icon-products"></i> Products</li>
+      <li [class.active]="currentView === 'products'" (click)="currentView = 'products'"><i class="icon-products"></i> Products</li>
       <li><i class="icon-orders"></i> My Orders</li>
       <li><i class="icon-wishlist"></i> Wishlist</li>
-      <li class="cart-link"><i class="icon-cart"></i> Cart</li>
+      <li [class.active]="currentView === 'cart'" class="cart-link" (click)="currentView = 'cart'"><i class="icon-cart"></i> Cart</li>
       <li><i class="icon-settings"></i> Settings</li>
     </ul>
 
@@ -60,7 +59,7 @@
   <div class="main-content">
 
     <!-- LEFT COLUMN: PRODUCTS -->
-    <div class="products-section">
+    <div class="products-section" *ngIf="currentView === 'products'">
       <div class="section-header">
         <h2>Cart Products</h2>
         <div class="header-actions">
@@ -97,7 +96,7 @@
     </div>
 
     <!-- RIGHT COLUMN: CART -->
-    <div class="cart-section">
+    <div class="cart-section" *ngIf="currentView === 'cart'">
       <div class="cart-header">
         <h2>Cart</h2>
         <button class="delete-all-btn" (click)="clearCart()">Delete All</button>
