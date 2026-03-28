@@ -135,8 +135,22 @@
 
       <div class="cart-summary">
         <div class="promo-box">
-          <span class="promo-icon">%</span> Promo Every User (12%)
-          <button class="change-promo-btn">Change Promo</button>
+          <div class="promo-info">
+            <span class="promo-icon">%</span>
+            <span *ngIf="appliedPromo">{{ appliedPromo }} ({{ promoDiscountPercentage * 100 }}%)</span>
+            <span *ngIf="!appliedPromo">Select Promo Code</span>
+          </div>
+          <button class="change-promo-btn" (click)="togglePromoMenu()">Change Promo</button>
+        </div>
+
+        <!-- PROMO DROPDOWN / POPUP -->
+        <div class="promo-dropdown" *ngIf="showPromoMenu">
+          <h4>Available Promos</h4>
+          <div class="promo-option" *ngFor="let p of availablePromos" (click)="applyPromoCode(p.code)">
+            <span class="p-code">{{ p.code }}</span>
+            <span class="p-desc">{{ p.desc }}</span>
+          </div>
+          <div *ngIf="promoError" class="promo-error">{{ promoError }}</div>
         </div>
 
         <div class="summary-row">

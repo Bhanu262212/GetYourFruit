@@ -42,4 +42,8 @@ export class ProductService {
   clearCart(userId: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/cart/${userId}`);
   }
+
+  validatePromoCode(code: string): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/promo/${code}`);
+  }
 }

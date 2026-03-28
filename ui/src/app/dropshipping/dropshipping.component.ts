@@ -23,7 +23,15 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
 
   // Cart state
   cartItems: any[] = [];
-  promoDiscountPercentage: number = 0.12; // 12%
+  promoDiscountPercentage: number = 0.0; // Default 0%
+  appliedPromo: string = '';
+  showPromoMenu: boolean = false;
+  promoError: string = '';
+  availablePromos = [
+    { code: 'SUMMER15', desc: 'Get 15% off your order' },
+    { code: 'WELCOME20', desc: 'Get 20% off your first order' },
+    { code: 'FLASH50', desc: '50% off flash sale' }
+  ];
 
   searchValue: string = '';
   sortOption: string = 'default';
@@ -234,6 +242,26 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
 
   getTotalPayment(): number {
     return this.getTotalPrice() - this.getDiscount();
+  }
+
+  togglePromoMenu() {
+    this.showPromoMenu = !this.showPromoMenu;
+    this.promoError = '';
+  }
+
+  applyPromoCode(code: string) {
+    this.promoError = '';
+    this.productService.validatePromoCode(code).subscribe({
+      next: (response: any) => {
+        this.appliedPromo = response.code;
+        this.promoDiscountPercentage = response.discountPercentage;
+        this.showPromoMenu = false;
+      },
+      error: (err) => {
+        this.promoError = 'Invalid or expired promo code.';
+        console.error('Promo error', err);
+      }
+    });
   }
 
   proceedToPayment() {

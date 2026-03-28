@@ -552,6 +552,11 @@
   font-weight: 500;
 }
 
+.promo-info {
+  display: flex;
+  align-items: center;
+}
+
 .promo-icon {
   margin-right: 8px;
 }
@@ -565,6 +570,53 @@
   font-size: 12px;
   cursor: pointer;
   font-weight: 600;
+}
+
+.promo-dropdown {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.promo-dropdown h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.promo-option {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+
+.promo-option:hover {
+  background: #fdfaf5;
+  border-color: #ffedd5;
+}
+
+.promo-option .p-code {
+  font-weight: 700;
+  color: #ff7a00;
+  font-size: 14px;
+}
+
+.promo-option .p-desc {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.promo-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 8px;
 }
 
 .summary-row {
