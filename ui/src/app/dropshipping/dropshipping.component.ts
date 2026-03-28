@@ -62,11 +62,39 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
         this.noResults = (data == null || data.length === 0);
         this.isLoading = false;
         this.searchValue = '';
+
+        // After loading products, load the user's cart
+        this.loadCart();
       },
       error: (error) => {
         this.errorMessage = 'Failed to load products. Please check if the server is running.';
         this.isLoading = false;
         this.noResults = false;
+      }
+    });
+  }
+
+  private loadCart() {
+    const userId = localStorage.getItem('userId');
+    if (!userId || !this.products || this.products.length === 0) return;
+
+    this.productService.getCart(userId).subscribe({
+      next: (cartData) => {
+        this.cartItems = [];
+        for (const item of cartData) {
+          const productMatch = this.products.find(p => p.id === item.productId);
+          if (productMatch) {
+            this.cartItems.push({
+              ...productMatch,
+              quantity: item.quantity,
+              color: 'Silver',
+              storage: '8/256'
+            });
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load cart', err);
       }
     });
   }
@@ -119,9 +147,13 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   // ==== CART FUNCTIONS ====
 
   onAddToCart(product: Product) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
     const existingItem = this.cartItems.find(item => item.id === product.id);
     if (existingItem) {
       existingItem.quantity += 1;
+      this.updateCartInBackend(product.id, existingItem.quantity, userId);
     } else {
       this.cartItems.push({
         ...product,
@@ -129,24 +161,51 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
         color: 'Silver', // Mock data as per UI
         storage: '8/256' // Mock data as per UI
       });
+      this.updateCartInBackend(product.id, 1, userId);
     }
   }
 
+  private updateCartInBackend(productId: string | undefined, quantity: number, userId: string) {
+    if (!productId) return;
+    const payload = { productId, quantity, userId };
+    this.productService.updateCart(payload).subscribe({
+      next: () => console.log('Cart updated successfully in backend'),
+      error: (err) => console.error('Failed to update cart in backend', err)
+    });
+  }
+
   removeFromCart(index: number) {
-    this.cartItems.splice(index, 1);
+    const item = this.cartItems[index];
+    const userId = localStorage.getItem('userId');
+    if (item && userId) {
+      // In a real app we'd have a delete endpoint, but for now we set quantity to 0 or leave it to user implementation
+      // Just removing locally for now since there's no delete item API provided
+      this.cartItems.splice(index, 1);
+    }
   }
 
   clearCart() {
     this.cartItems = [];
+    // API for clearing cart is missing, ideally we'd call it here
   }
 
   increaseQty(index: number) {
     this.cartItems[index].quantity += 1;
+    const item = this.cartItems[index];
+    const userId = localStorage.getItem('userId');
+    if (item && userId) {
+      this.updateCartInBackend(item.id, item.quantity, userId);
+    }
   }
 
   decreaseQty(index: number) {
     if (this.cartItems[index].quantity > 1) {
       this.cartItems[index].quantity -= 1;
+      const item = this.cartItems[index];
+      const userId = localStorage.getItem('userId');
+      if (item && userId) {
+        this.updateCartInBackend(item.id, item.quantity, userId);
+      }
     }
   }
 

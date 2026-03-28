@@ -17,19 +17,25 @@ public class CartServiceImpl implements CartService {
     CartRepository cartRepository;
 
     @Override
-    public void addProductToCart(Cart cart) {
-        Cart cartBuilder = Cart.builder()
-                .productId(cart.getProductId())
-                .quantity(cart.getQuantity())
-                .userId(cart.getUserId())
-                .id("123")
-                .build();
-        if (!cartRepository.existsByProductIdAndUserId(cart.getProductId(), cart.getUserId())){
-           log.debug("Product Doesnt exist in cart, adding new product to cart");
-            cartRepository.save(cartBuilder);
-        } else {
-            cartRepository.save(cartBuilder);
-        }
+    public java.util.List<Cart> getCartByUserId(String userId) {
+        return cartRepository.getCartByUserId(userId);
+    }
 
+    @Override
+    public void addProductToCart(Cart cart) {
+        Cart existingCart = cartRepository.findByProductIdAndUserId(cart.getProductId(), cart.getUserId());
+        if (existingCart == null) {
+            log.debug("Product Doesn't exist in cart, adding new product to cart");
+            Cart newCart = Cart.builder()
+                    .productId(cart.getProductId())
+                    .quantity(cart.getQuantity())
+                    .userId(cart.getUserId())
+                    .build();
+            cartRepository.save(newCart);
+        } else {
+            log.debug("Product exists in cart, updating quantity");
+            existingCart.setQuantity(cart.getQuantity());
+            cartRepository.save(existingCart);
+        }
     }
 }
