@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { ProductService } from '../services/product.service';
 import { Product } from '../models/product';
 import { ProductCardComponent } from '../product-card/product-card.component';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-dropshipping',
@@ -26,9 +28,13 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   searchValue: string = '';
   sortOption: string = 'default';
 
+  showProfileMenu: boolean = false;
+  showAccountDetails: boolean = false;
+  userDetails: any = null;
+
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
-  constructor(private productService: ProductService, private router: Router) {}
+  constructor(private productService: ProductService, private router: Router, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadAll();
@@ -160,7 +166,42 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     // Potentially make a backend call here to save the cart
   }
 
-  onLogout() {
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
+  }
+
+  viewAccountDetails() {
+    this.showProfileMenu = false;
+    this.showAccountDetails = true;
+    this.userDetails = null;
+
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      this.http.get(`${environment.apiUrl}/getUserDetails?id=${userId}`).subscribe({
+        next: (data: any) => {
+          this.userDetails = data;
+        },
+        error: (err) => {
+          console.error('Error fetching user details', err);
+          this.userDetails = { username: 'Error loading details' };
+        }
+      });
+    } else {
+      this.userDetails = { username: 'No user ID found' };
+    }
+  }
+
+  closeAccountDetails() {
+    this.showAccountDetails = false;
+  }
+
+  logout() {
+    localStorage.removeItem('username');
+    localStorage.removeItem('userId');
     this.router.navigate(['/login']);
+  }
+
+  onLogout() {
+    this.logout();
   }
 }
