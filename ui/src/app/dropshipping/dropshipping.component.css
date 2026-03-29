@@ -418,6 +418,62 @@
   .product-modal-body {
     flex-direction: column;
   }
+
+  .top-nav {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    margin: 8px;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .nav-right {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .main-content {
+    flex-direction: column;
+    padding: 0 8px 8px;
+    gap: 12px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    width: 100%;
+    flex: 1;
+  }
+
+  .products-section, .cart-section {
+    width: 100%;
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .cart-section {
+    align-self: stretch;
+  }
 }
 
 /* ================= MAIN CONTENT AREA ================= */
@@ -543,6 +599,7 @@
 /* ================= RIGHT COLUMN: CART ================= */
 .cart-section {
   width: 400px;
+  max-width: 100%;
   background: white;
   border-radius: 20px;
   padding: 24px;
