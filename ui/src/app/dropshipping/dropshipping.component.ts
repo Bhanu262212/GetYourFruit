@@ -42,6 +42,9 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   showAccountDetails: boolean = false;
   userDetails: any = null;
 
+  selectedProduct: Product | null = null;
+  mainImageUrl: string = '';
+
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   constructor(private productService: ProductService, private router: Router, private http: HttpClient) {}
@@ -303,6 +306,38 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
 
   closeAccountDetails() {
     this.showAccountDetails = false;
+  }
+
+  openProductDetails(product: Product) {
+    this.selectedProduct = product;
+    this.mainImageUrl = product.imageUrl;
+    // mock optional fields if they don't exist
+    if (!this.selectedProduct.images) {
+      this.selectedProduct.images = [product.imageUrl, 'https://picsum.photos/400/400?random=1', 'https://picsum.photos/400/400?random=2'];
+    }
+    if (!this.selectedProduct.description) {
+      this.selectedProduct.description = "Detailed description of the product. This product has great features and an amazing design.";
+    }
+    if (!this.selectedProduct.rating) {
+      this.selectedProduct.rating = 4.5;
+    }
+    if (!this.selectedProduct.reviewCount) {
+      this.selectedProduct.reviewCount = 24;
+    }
+    if (!this.selectedProduct.reviews) {
+      this.selectedProduct.reviews = [
+        { user: 'Alice', rating: 5, comment: 'Excellent product! Highly recommend.' },
+        { user: 'Bob', rating: 4, comment: 'Good value for the price.' }
+      ];
+    }
+  }
+
+  closeProductDetails() {
+    this.selectedProduct = null;
+  }
+
+  setMainImage(url: string) {
+    this.mainImageUrl = url;
   }
 
   logout() {

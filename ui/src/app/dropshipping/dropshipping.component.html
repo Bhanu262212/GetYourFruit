@@ -55,6 +55,63 @@
     </div>
   </div>
 
+  <!-- ===== PRODUCT DETAILS MODAL ===== -->
+  <div class="modal-overlay" *ngIf="selectedProduct" (click)="closeProductDetails()">
+    <div class="modal-content product-details" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Product Details</h3>
+        <button class="close-btn" (click)="closeProductDetails()">×</button>
+      </div>
+
+      <div class="product-modal-body">
+        <div class="product-gallery">
+          <div class="main-image">
+            <img [src]="mainImageUrl" alt="Main Product Image">
+          </div>
+          <div class="thumbnail-list" *ngIf="selectedProduct.images && selectedProduct.images.length > 1">
+            <img *ngFor="let img of selectedProduct.images"
+                 [src]="img"
+                 (click)="setMainImage(img)"
+                 [class.active]="mainImageUrl === img"
+                 alt="Thumbnail">
+          </div>
+        </div>
+
+        <div class="product-info">
+          <h2 class="pd-title">{{ selectedProduct.productName }}</h2>
+          <div class="pd-rating">
+            <span class="stars">★★★★½</span>
+            <span class="rating-val">{{ selectedProduct.rating }}</span>
+            <span class="review-count">({{ selectedProduct.reviewCount }} reviews)</span>
+          </div>
+          <div class="pd-price">${{ selectedProduct.price }}</div>
+
+          <div class="pd-description">
+            <h4>Description</h4>
+            <p>{{ selectedProduct.description }}</p>
+          </div>
+
+          <div class="pd-reviews">
+            <h4>Reviews</h4>
+            <div class="review-item" *ngFor="let rev of selectedProduct.reviews">
+              <div class="review-header">
+                <strong>{{ rev.user }}</strong>
+                <span class="rev-stars">
+                  <ng-container *ngFor="let s of [1,2,3,4,5]">
+                    <span [style.color]="s <= rev.rating ? '#ff7a00' : '#d1d5db'">★</span>
+                  </ng-container>
+                </span>
+              </div>
+              <p class="review-comment">{{ rev.comment }}</p>
+            </div>
+          </div>
+
+          <button class="add-to-cart-large" (click)="onAddToCart(selectedProduct); closeProductDetails()">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== MAIN CONTENT AREA ===== -->
   <div class="main-content">
 
@@ -89,6 +146,7 @@
         <ng-container *ngFor="let product of products">
           <app-product-card
             [product]="product"
+            (productClick)="openProductDetails($event)"
             (addToCart)="onAddToCart($event)">
           </app-product-card>
         </ng-container>
