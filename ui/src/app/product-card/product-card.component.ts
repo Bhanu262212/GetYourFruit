@@ -12,8 +12,14 @@ import { Product } from '../models/product';
 export class ProductCardComponent {
   @Input() product!: Product;
   @Output() addToCart = new EventEmitter<Product>();
+  @Output() productClick = new EventEmitter<Product>();
 
-  onAddToCart() {
+  onAddToCart(event: Event) {
+    event.stopPropagation();
     this.addToCart.emit(this.product);
+  }
+
+  onCardClick() {
+    this.productClick.emit(this.product);
   }
 }

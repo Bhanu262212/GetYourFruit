@@ -30,8 +30,10 @@ export class LoginComponent {
     this.http.get(`${environment.apiUrl}/validate?Username=${this.username}&Password=${this.password}`).subscribe({
       next: (user: any) => {
         if (user && user.username) {
-          localStorage.setItem('username', user.username);
-          localStorage.setItem('userId', user.id);
+          if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.setItem('username', user.username);
+            localStorage.setItem('userId', user.id);
+          }
           this.router.navigate(['/home']);
         } else {
           this.errorMsg = 'Invalid username or password.';

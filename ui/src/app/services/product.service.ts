@@ -22,4 +22,28 @@ export class ProductService {
     const url = `${environment.apiUrl}/search?q=${encodeURIComponent(q)}`;
     return this.http.get<Product[]>(url);
   }
+
+  getCart(userId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/cart/${userId}`);
+  }
+
+  updateCart(cartItem: any): Observable<any> {
+    return this.http.patch(`${environment.apiUrl}/cart`, cartItem);
+  }
+
+  addToCart(cartItem: any): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/cart`, cartItem);
+  }
+
+  deleteCartItem(userId: string, productId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/cart/${userId}/${productId}`);
+  }
+
+  clearCart(userId: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/cart/${userId}`);
+  }
+
+  validatePromoCode(code: string): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/promo/${code}`);
+  }
 }

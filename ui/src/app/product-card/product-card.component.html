@@ -1,6 +1,6 @@
-<div class="card">
+<div class="card" (click)="onCardClick()" style="cursor: pointer;">
   <!-- Top Right Action (Heart) -->
-  <button class="heart-btn">
+  <button class="heart-btn" (click)="$event.stopPropagation()">
     ♡
   </button>
 
@@ -16,7 +16,7 @@
         <span class="current-price">${{ product.price }}</span>
         <span class="old-price" *ngIf="product.price < 1500">${{ product.price + 60 }}</span> <!-- Mock old price -->
       </div>
-      <button class="add-btn" (click)="onAddToCart()">
+      <button class="add-btn" (click)="onAddToCart($event)">
         <span class="arrow-icon">↗</span>
       </button>
     </div>

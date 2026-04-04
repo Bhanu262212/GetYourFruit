@@ -17,19 +17,43 @@ public class CartServiceImpl implements CartService {
     CartRepository cartRepository;
 
     @Override
-    public void addProductToCart(Cart cart) {
-        Cart cartBuilder = Cart.builder()
-                .productId(cart.getProductId())
-                .quantity(cart.getQuantity())
-                .userId(cart.getUserId())
-                .id("123")
-                .build();
-        if (!cartRepository.existsByProductIdAndUserId(cart.getProductId(), cart.getUserId())){
-           log.debug("Product Doesnt exist in cart, adding new product to cart");
-            cartRepository.save(cartBuilder);
-        } else {
-            cartRepository.save(cartBuilder);
-        }
+    public java.util.List<Cart> getCartByUserId(String userId) {
+        return cartRepository.getCartByUserId(userId);
+    }
 
+    @Override
+    public void addProductToCart(Cart cart) {
+        Cart existingCart = cartRepository.findByProductIdAndUserId(cart.getProductId(), cart.getUserId());
+        if (existingCart == null) {
+            log.debug("Product Doesn't exist in cart, adding new product to cart");
+            Cart newCart = Cart.builder()
+                    .productId(cart.getProductId())
+                    .quantity(cart.getQuantity())
+                    .userId(cart.getUserId())
+                    .build();
+            cartRepository.save(newCart);
+        } else {
+            log.debug("Product exists in cart, updating quantity");
+            existingCart.setQuantity(cart.getQuantity());
+            cartRepository.save(existingCart);
+        }
+    }
+
+    @Override
+    public void deleteCartItem(String productId, String userId) {
+        log.debug("Deleting product {} from cart for user {}", productId, userId);
+        Cart existingCart = cartRepository.findByProductIdAndUserId(productId, userId);
+        if (existingCart != null) {
+            cartRepository.deleteById(existingCart.getId());
+        }
+    }
+
+    @Override
+    public void clearCart(String userId) {
+        log.debug("Clearing cart for user {}", userId);
+        java.util.List<Cart> items = cartRepository.getCartByUserId(userId);
+        for (Cart item : items) {
+            cartRepository.deleteById(item.getId());
+        }
     }
 }

@@ -23,14 +23,27 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
 
   // Cart state
   cartItems: any[] = [];
-  promoDiscountPercentage: number = 0.12; // 12%
+  promoDiscountPercentage: number = 0.0; // Default 0%
+  appliedPromo: string = '';
+  showPromoMenu: boolean = false;
+  promoError: string = '';
+  availablePromos = [
+    { code: 'SUMMER15', desc: 'Get 15% off your order' },
+    { code: 'WELCOME20', desc: 'Get 20% off your first order' },
+    { code: 'FLASH50', desc: '50% off flash sale' }
+  ];
 
   searchValue: string = '';
   sortOption: string = 'default';
 
+  currentView: 'products' | 'cart' = 'products';
+
   showProfileMenu: boolean = false;
   showAccountDetails: boolean = false;
   userDetails: any = null;
+
+  selectedProduct: Product | null = null;
+  mainImageUrl: string = '';
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
@@ -60,11 +73,40 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
         this.noResults = (data == null || data.length === 0);
         this.isLoading = false;
         this.searchValue = '';
+
+        // After loading products, load the user's cart
+        this.loadCart();
       },
       error: (error) => {
         this.errorMessage = 'Failed to load products. Please check if the server is running.';
         this.isLoading = false;
         this.noResults = false;
+      }
+    });
+  }
+
+  private loadCart() {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    const userId = localStorage.getItem('userId');
+    if (!userId || !this.products || this.products.length === 0) return;
+
+    this.productService.getCart(userId).subscribe({
+      next: (cartData) => {
+        this.cartItems = [];
+        for (const item of cartData) {
+          const productMatch = this.products.find(p => p.id === item.productId);
+          if (productMatch) {
+            this.cartItems.push({
+              ...productMatch,
+              quantity: item.quantity,
+              color: 'Silver',
+              storage: '8/256'
+            });
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load cart', err);
       }
     });
   }
@@ -117,9 +159,14 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
   // ==== CART FUNCTIONS ====
 
   onAddToCart(product: Product) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
     const existingItem = this.cartItems.find(item => item.id === product.id);
     if (existingItem) {
       existingItem.quantity += 1;
+      this.updateCartInBackend(product.id, existingItem.quantity, userId);
     } else {
       this.cartItems.push({
         ...product,
@@ -127,24 +174,69 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
         color: 'Silver', // Mock data as per UI
         storage: '8/256' // Mock data as per UI
       });
+      this.updateCartInBackend(product.id, 1, userId);
     }
   }
 
+  private updateCartInBackend(productId: string | undefined, quantity: number, userId: string) {
+    if (!productId) return;
+    const payload = { productId, quantity, userId };
+    this.productService.updateCart(payload).subscribe({
+      next: () => console.log('Cart updated successfully in backend'),
+      error: (err) => console.error('Failed to update cart in backend', err)
+    });
+  }
+
   removeFromCart(index: number) {
-    this.cartItems.splice(index, 1);
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    const item = this.cartItems[index];
+    const userId = localStorage.getItem('userId');
+    if (item && userId) {
+      this.productService.deleteCartItem(userId, item.id).subscribe({
+        next: () => {
+          this.cartItems.splice(index, 1);
+          console.log('Item deleted from backend cart');
+        },
+        error: (err) => console.error('Failed to delete item from backend cart', err)
+      });
+    }
   }
 
   clearCart() {
-    this.cartItems = [];
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      this.productService.clearCart(userId).subscribe({
+        next: () => {
+          this.cartItems = [];
+          console.log('Cart cleared in backend');
+        },
+        error: (err) => console.error('Failed to clear backend cart', err)
+      });
+    } else {
+      this.cartItems = [];
+    }
   }
 
   increaseQty(index: number) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     this.cartItems[index].quantity += 1;
+    const item = this.cartItems[index];
+    const userId = localStorage.getItem('userId');
+    if (item && userId) {
+      this.updateCartInBackend(item.id, item.quantity, userId);
+    }
   }
 
   decreaseQty(index: number) {
+    if (typeof window === 'undefined' || !window.localStorage) return;
     if (this.cartItems[index].quantity > 1) {
       this.cartItems[index].quantity -= 1;
+      const item = this.cartItems[index];
+      const userId = localStorage.getItem('userId');
+      if (item && userId) {
+        this.updateCartInBackend(item.id, item.quantity, userId);
+      }
     }
   }
 
@@ -161,6 +253,26 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     return this.getTotalPrice() - this.getDiscount();
   }
 
+  togglePromoMenu() {
+    this.showPromoMenu = !this.showPromoMenu;
+    this.promoError = '';
+  }
+
+  applyPromoCode(code: string) {
+    this.promoError = '';
+    this.productService.validatePromoCode(code).subscribe({
+      next: (response: any) => {
+        this.appliedPromo = response.code;
+        this.promoDiscountPercentage = response.discountPercentage;
+        this.showPromoMenu = false;
+      },
+      error: (err) => {
+        this.promoError = 'Invalid or expired promo code.';
+        console.error('Promo error', err);
+      }
+    });
+  }
+
   proceedToPayment() {
     alert(`Proceeding to payment... Total: $${this.getTotalPayment()}`);
     // Potentially make a backend call here to save the cart
@@ -175,6 +287,7 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     this.showAccountDetails = true;
     this.userDetails = null;
 
+    if (typeof window === 'undefined' || !window.localStorage) return;
     const userId = localStorage.getItem('userId');
     if (userId) {
       this.http.get(`${environment.apiUrl}/getUserDetails?id=${userId}`).subscribe({
@@ -195,9 +308,43 @@ export class DropshippingComponent implements OnInit, AfterViewInit {
     this.showAccountDetails = false;
   }
 
+  openProductDetails(product: Product) {
+    this.selectedProduct = product;
+    this.mainImageUrl = product.imageUrl;
+    // mock optional fields if they don't exist
+    if (!this.selectedProduct.images) {
+      this.selectedProduct.images = [product.imageUrl, 'https://picsum.photos/400/400?random=1', 'https://picsum.photos/400/400?random=2'];
+    }
+    if (!this.selectedProduct.description) {
+      this.selectedProduct.description = "Detailed description of the product. This product has great features and an amazing design.";
+    }
+    if (!this.selectedProduct.rating) {
+      this.selectedProduct.rating = 4.5;
+    }
+    if (!this.selectedProduct.reviewCount) {
+      this.selectedProduct.reviewCount = 24;
+    }
+    if (!this.selectedProduct.reviews) {
+      this.selectedProduct.reviews = [
+        { user: 'Alice', rating: 5, comment: 'Excellent product! Highly recommend.' },
+        { user: 'Bob', rating: 4, comment: 'Good value for the price.' }
+      ];
+    }
+  }
+
+  closeProductDetails() {
+    this.selectedProduct = null;
+  }
+
+  setMainImage(url: string) {
+    this.mainImageUrl = url;
+  }
+
   logout() {
-    localStorage.removeItem('username');
-    localStorage.removeItem('userId');
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('username');
+      localStorage.removeItem('userId');
+    }
     this.router.navigate(['/login']);
   }
 

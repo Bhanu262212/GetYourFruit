@@ -176,3 +176,22 @@
     text-align: center;
     margin-bottom: 1rem;
   }
+
+  @media (max-width: 768px) {
+    .login-container {
+      padding: 1rem;
+    }
+
+    .login-card {
+      padding: 1.5rem;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .app-logo {
+      max-width: 120px;
+    }
+  }
