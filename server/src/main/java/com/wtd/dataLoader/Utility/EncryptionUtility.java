@@ -32,6 +32,11 @@ public class EncryptionUtility {
     }
 
     public static boolean decrypt(String passwordToVerify, String storedSaltAndHash) {
+        if (storedSaltAndHash == null || !storedSaltAndHash.contains(":")) {
+            // Fallback for unencrypted legacy passwords or plain text during dev
+            return passwordToVerify.equals(storedSaltAndHash);
+        }
+
         try {
             String[] parts = storedSaltAndHash.split(":");
             if (parts.length != 2) return false;

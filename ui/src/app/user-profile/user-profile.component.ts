@@ -31,15 +31,6 @@ export class UserProfileComponent implements OnInit {
       this.http.get(`${environment.apiUrl}/getUserDetails?username=${username}`).subscribe({
         next: (userData: any) => {
           this.user = userData;
-          // Mock data for tree maturity and harvest history for visual completeness
-          this.treeMaturity = Math.floor(Math.random() * 50) + 50;
-          this.harvestHistory = [
-            { date: '2023-09-15', amount: 3, total: 45.00 },
-            { date: '2023-10-02', amount: 1, total: 15.00 }
-          ];
-
-          // Entrance animation
-          setTimeout(() => this.animateEntrance(), 100);
         },
         error: (err) => {
           console.error('Error fetching user details', err);
