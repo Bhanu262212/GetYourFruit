@@ -1,12 +1,27 @@
+/* ================= CSS VARIABLES FOR SOUTHERN GROVES ================= */
+:root {
+  --sg-orange: #FF8C00;
+  --sg-green: #2E7D32;
+  --sg-parchment: #FFFDF5;
+  --sg-text-dark: #2C2C2C;
+  --sg-font-heading: 'Playfair Display', serif;
+  --sg-font-body: 'Montserrat', sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sg-font-body);
 }
 
 body {
-  background: #f2f2e8;
+  background: var(--sg-parchment);
+  color: var(--sg-text-dark);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--sg-font-heading);
 }
 
 .app-logo {

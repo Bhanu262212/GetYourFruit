@@ -1,0 +1,38 @@
+<div class="floating-basket" (click)="toggleCrate()">
+  <span class="basket-icon">🧺</span>
+  <span class="badge" *ngIf="cartItems.length > 0">{{ cartItems.length }}</span>
+</div>
+
+<div class="crate-overlay" *ngIf="isOpen" (click)="toggleCrate()"></div>
+
+<div class="crate-modal" *ngIf="isOpen">
+  <div class="crate-header">
+    <h2>Your Harvest Crate</h2>
+    <button class="close-btn" (click)="toggleCrate()">✕</button>
+  </div>
+
+  <div class="crate-body">
+    <div *ngIf="cartItems.length === 0" class="empty-state">
+      Your crate is empty. Go harvest some mangoes!
+    </div>
+
+    <div class="cart-item" *ngFor="let item of cartItems">
+      <div class="item-info">
+        <span class="item-name">Mango ID: {{ item.productId }}</span>
+        <span class="item-qty">Qty: {{ item.quantity }}</span>
+      </div>
+      <div class="item-actions">
+        <span class="item-price">${{ item.price * item.quantity | number:'1.2-2' }}</span>
+        <button class="remove-btn" (click)="removeItem(item.productId)">Drop</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="crate-footer" *ngIf="cartItems.length > 0">
+    <div class="total-row">
+      <span>Total Bounty:</span>
+      <span>${{ total | number:'1.2-2' }}</span>
+    </div>
+    <button class="checkout-btn">Proceed to Cellar</button>
+  </div>
+</div>
