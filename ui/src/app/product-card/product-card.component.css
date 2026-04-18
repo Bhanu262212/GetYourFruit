@@ -1,72 +1,106 @@
-.card {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
+.card-container {
+  width: 100%;
+  cursor: pointer;
   position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid #f3f4f6;
-  height: 100%;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+.image-container {
+  position: relative;
+  width: 100%;
+  padding-top: 133.33%; /* 3:4 aspect ratio */
+  background: #f5f5f6;
+  overflow: hidden;
 }
 
-.heart-btn {
+.product-img {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: white;
-  border: 1px solid #f3f4f6;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rating-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 6px;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star {
+  color: #03a685;
+  font-size: 10px;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   width: 32px;
   height: 32px;
+  background: rgba(255,255,255,0.8);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  color: #9ca3af;
   font-size: 16px;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  color: #696e79;
 }
 
-.heart-btn:hover {
-  color: #ef4444;
+.add-to-cart-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  padding: 10px;
+  transform: translateY(100%);
+  transition: transform 0.2s ease-in-out;
+  border-top: 1px solid #eaeaec;
 }
 
-.image-wrapper {
-  background: #f9fafb;
-  border-radius: 16px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  flex: 1;
+.card-container:hover .add-to-cart-overlay {
+  transform: translateY(0);
 }
 
-.product-image {
-  max-width: 100%;
-  max-height: 140px;
-  object-fit: contain;
+.add-to-cart-btn {
+  width: 100%;
+  padding: 10px;
+  background: white;
+  color: #282c3f;
+  border: 1px solid #d4d5d9;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.card-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.add-to-cart-btn:hover {
+  border-color: #282c3f;
 }
 
-.title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
+.product-meta {
+  padding: 12px 10px;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #282c3f;
+  margin: 0 0 6px 0;
+}
+
+.product-title {
+  font-size: 14px;
+  color: #535766;
+  font-weight: 400;
+  margin: 0 0 10px 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -74,47 +108,23 @@
 
 .price-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.prices {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 6px;
+  font-size: 14px;
 }
 
 .current-price {
-  font-size: 16px;
   font-weight: 700;
-  color: #ff7a00;
+  color: #282c3f;
 }
 
-.old-price {
-  font-size: 14px;
-  color: #9ca3af;
+.original-price {
+  color: #7e818c;
   text-decoration: line-through;
+  font-size: 12px;
 }
 
-.add-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #111827; /* Dark background like in some cards, you can toggle class dynamically for orange */
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.add-btn:hover {
-  background: #ff7a00;
-}
-
-.arrow-icon {
-  font-size: 16px;
-  line-height: 1;
+.discount-percent {
+  color: #ff905a;
+  font-size: 12px;
 }

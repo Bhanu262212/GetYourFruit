@@ -22,4 +22,12 @@ export class ProductCardComponent {
   onCardClick() {
     this.productClick.emit(this.product);
   }
+
+  calculateDiscount(): number {
+    if (this.product.price < 1500) {
+      const originalPrice = this.product.price + 60;
+      return Math.round(((originalPrice - this.product.price) / originalPrice) * 100);
+    }
+    return 0;
+  }
 }
