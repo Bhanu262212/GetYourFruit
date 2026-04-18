@@ -1,24 +1,31 @@
-<div class="card" (click)="onCardClick()" style="cursor: pointer;">
-  <!-- Top Right Action (Heart) -->
-  <button class="heart-btn" (click)="$event.stopPropagation()">
-    ♡
-  </button>
+<div class="card-container" (click)="onCardClick()">
+  <div class="image-container">
+    <img [src]="product.imageUrl" [alt]="product.productName" class="product-img" />
 
-  <div class="image-wrapper">
-    <img [src]="product.imageUrl" alt="{{product.productName}}" class="product-image">
+    <!-- Rating overlay -->
+    <div class="rating-badge">
+       {{ product.rating || '4.3' }} <span class="star">★</span> | {{ product.reviewCount || '289' }}
+    </div>
+
+    <!-- Wishlist action (top right) -->
+    <div class="wishlist-btn" (click)="$event.stopPropagation()">
+      ♡
+    </div>
+
+    <!-- Add to cart overlay action (on hover) -->
+    <div class="add-to-cart-overlay">
+       <button class="add-to-cart-btn" (click)="onAddToCart($event)">ADD TO BAG</button>
+    </div>
   </div>
 
-  <div class="card-bottom">
-    <h3 class="title">{{ product.productName }}</h3>
+  <div class="product-meta">
+    <h3 class="brand-name">Bewakoof</h3>
+    <h4 class="product-title">{{ product.productName }}</h4>
 
     <div class="price-row">
-      <div class="prices">
-        <span class="current-price">${{ product.price }}</span>
-        <span class="old-price" *ngIf="product.price < 1500">${{ product.price + 60 }}</span> <!-- Mock old price -->
-      </div>
-      <button class="add-btn" (click)="onAddToCart($event)">
-        <span class="arrow-icon">↗</span>
-      </button>
+      <span class="current-price">Rs. {{ product.price }}</span>
+      <span class="original-price" *ngIf="product.price < 1500">Rs. {{ product.price + 60 }}</span>
+      <span class="discount-percent" *ngIf="product.price < 1500">({{ calculateDiscount() }}% OFF)</span>
     </div>
   </div>
 </div>

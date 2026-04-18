@@ -3,34 +3,52 @@
   <!-- ===== TOP NAVIGATION ===== -->
   <div class="top-nav">
     <div class="logo-area">
-      <img src="home_logo.jpeg" alt="Southern Groves Logo" class="app-logo">
+      <!-- Use placeholder Myntra-like logo -->
+      <svg class="app-logo myntra-logo" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <path d="M125 400 L250 150 L375 400 L450 400 L250 50 L50 400 Z" fill="#ff3f6c"/>
+        <path d="M200 400 L250 300 L300 400 Z" fill="#ff905a"/>
+      </svg>
     </div>
 
-    <ul class="nav-links">
-      <li [class.active]="currentView === 'products'" (click)="currentView = 'products'"><i class="icon-products"></i> Products</li>
-      <li><i class="icon-orders"></i> My Orders</li>
-      <li><i class="icon-wishlist"></i> Wishlist</li>
-      <li [class.active]="currentView === 'cart'" class="cart-link" (click)="currentView = 'cart'"><i class="icon-cart"></i> Cart</li>
-      <li><i class="icon-settings"></i> Settings</li>
+    <ul class="nav-links myntra-menu">
+      <li [class.active]="currentView === 'products'" (click)="currentView = 'products'">PRODUCTS</li>
+      <li>MY ORDERS</li>
+      <li>WISHLIST</li>
+      <li [class.active]="currentView === 'cart'" (click)="currentView = 'cart'">CART</li>
+      <li>SETTINGS</li>
     </ul>
 
     <div class="nav-right">
-      <div class="icon-btn">🔔</div>
-      <div class="icon-btn">♡</div>
-      <div class="profile-container">
-        <div class="profile-pic black-profile" (click)="toggleProfileMenu()" title="Profile">
-          <!-- SVG icon for a default black user profile -->
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/>
-          </svg>
-        </div>
-        <div class="profile-menu" *ngIf="showProfileMenu">
-          <div class="menu-item" (click)="viewAccountDetails()">Account Details</div>
-          <div class="menu-item logout" (click)="logout()">Logout</div>
+      <div class="search-container" [class.has-value]="searchValue !== ''">
+        <span class="search-icon" (click)="searchInput.focus()" title="Search">🔍</span>
+        <input #searchInput class="search-input" type="text" placeholder="Search for products, brands and more" aria-label="Search" (input)="onSearch(searchInput.value)">
+      </div>
+
+      <div class="header-action-items">
+        <div class="header-action-item profile-container">
+          <div class="action-icon" (click)="toggleProfileMenu()" title="Profile">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <span class="action-text">Profile</span>
+          <div class="profile-menu" *ngIf="showProfileMenu">
+            <div class="menu-item" (click)="viewAccountDetails()">Account Details</div>
+            <div class="menu-item logout" (click)="logout()">Logout</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- ===== PAGE HEADER (Breadcrumbs & Title) ===== -->
+  <div class="page-header" *ngIf="currentView === 'products'">
+    <div class="breadcrumbs">
+      Home / <strong>Bewakoof</strong>
+    </div>
+    <div class="page-title">
+      <strong>Bewakoof</strong> - 4441 items
+    </div>
+  </div>
+
 
   <!-- ===== ACCOUNT DETAILS MODAL ===== -->
   <div class="modal-overlay" *ngIf="showAccountDetails">
@@ -84,7 +102,7 @@
             <span class="rating-val">{{ selectedProduct.rating }}</span>
             <span class="review-count">({{ selectedProduct.reviewCount }} reviews)</span>
           </div>
-          <div class="pd-price">${{ selectedProduct.price }}</div>
+          <div class="pd-price">Rs. {{ selectedProduct.price }}</div>
 
           <div class="pd-description">
             <h4>Description</h4>
@@ -98,7 +116,7 @@
                 <strong>{{ rev.user }}</strong>
                 <span class="rev-stars">
                   <ng-container *ngFor="let s of [1,2,3,4,5]">
-                    <span [style.color]="s <= rev.rating ? '#ff7a00' : '#d1d5db'">★</span>
+                    <span [style.color]="s <= rev.rating ? '#ff3f6c' : '#d1d5db'">★</span>
                   </ng-container>
                 </span>
               </div>
@@ -106,7 +124,7 @@
             </div>
           </div>
 
-          <button class="add-to-cart-large" (click)="onAddToCart(selectedProduct); closeProductDetails()">Add to Cart</button>
+          <button class="add-to-cart-large" (click)="onAddToCart(selectedProduct); closeProductDetails()">Add to Bag</button>
         </div>
       </div>
     </div>
@@ -115,120 +133,160 @@
   <!-- ===== MAIN CONTENT AREA ===== -->
   <div class="main-content">
 
-    <!-- LEFT COLUMN: PRODUCTS -->
-    <div class="products-section">
-      <div class="section-header">
-        <h2>Cart Products</h2>
-        <div class="header-actions">
-          <div class="search-box" [class.has-value]="searchValue !== ''">
-            <span class="search-icon" (click)="searchInput.focus()" title="Search">🔍</span>
-            <input #searchInput class="search-input" type="text" placeholder="Search..." aria-label="Search" (input)="onSearch(searchInput.value)">
-          </div>
-          <button class="filter-btn">Filter <span class="filter-icon">≡</span></button>
-          <button class="create-order-btn">+ Create Order</button>
+    <!-- LEFT SIDEBAR FILTERS (Only visible on products view) -->
+    <div class="filter-sidebar" *ngIf="currentView === 'products'">
+      <div class="filter-header">
+        <h3>FILTERS</h3>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-option"><input type="radio" name="gender" checked> Men</label>
+        <label class="filter-option"><input type="radio" name="gender"> Women</label>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-header">
+          <h4>CATEGORIES</h4>
+          <span class="filter-search-icon">🔍</span>
         </div>
+        <label class="filter-option"><input type="checkbox"> Tshirts <span class="count">(2397)</span></label>
+        <label class="filter-option"><input type="checkbox"> Sweatshirts <span class="count">(366)</span></label>
+        <label class="filter-option"><input type="checkbox"> Shirts <span class="count">(302)</span></label>
+        <label class="filter-option"><input type="checkbox"> Track Pants <span class="count">(230)</span></label>
+        <label class="filter-option"><input type="checkbox"> Trousers <span class="count">(203)</span></label>
+        <label class="filter-option"><input type="checkbox"> Jeans <span class="count">(158)</span></label>
+        <label class="filter-option"><input type="checkbox"> Tops <span class="count">(97)</span></label>
+        <label class="filter-option"><input type="checkbox"> Lounge Pants <span class="count">(89)</span></label>
+        <div class="more-link">+ 24 more</div>
       </div>
 
-      <div class="categories">
-        <button class="category-btn active">Mobile</button>
-        <button class="category-btn">All Products</button>
-        <button class="category-btn">Grocery</button>
-        <button class="category-btn">Most Purchased</button>
-        <button class="category-btn">Shoes</button>
-        <button class="category-btn">Funtiture</button>
-      </div>
-
-      <div *ngIf="isLoading" class="loading">Loading products...</div>
-      <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
-      <div *ngIf="noResults" class="no-results">No products found</div>
-
-      <div class="grid" *ngIf="!noResults">
-        <ng-container *ngFor="let product of products">
-          <app-product-card
-            [product]="product"
-            (productClick)="openProductDetails($event)"
-            (addToCart)="onAddToCart($event)">
-          </app-product-card>
-        </ng-container>
+      <div class="filter-group">
+        <div class="filter-group-header">
+          <h4>BRAND</h4>
+          <span class="filter-search-icon">🔍</span>
+        </div>
+        <label class="filter-option"><input type="checkbox"> Bewakoof <span class="count">(3467)</span></label>
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: CART -->
-    <div class="cart-section" *ngIf="currentView === 'cart'">
-      <div class="cart-header">
-        <h2>Cart</h2>
-        <button class="delete-all-btn" (click)="clearCart()">Delete All</button>
+    <!-- RIGHT COLUMN: PRODUCTS OR CART -->
+    <div class="content-area">
+
+      <!-- PRODUCTS VIEW -->
+      <div class="products-section" *ngIf="currentView === 'products'">
+        <div class="products-top-bar">
+          <div class="horizontal-filters">
+            <div class="h-filter-dropdown">Bundles <span class="dropdown-arrow">▼</span></div>
+            <div class="h-filter-dropdown">Country of Origin <span class="dropdown-arrow">▼</span></div>
+            <div class="h-filter-dropdown">Size <span class="dropdown-arrow">▼</span></div>
+          </div>
+          <div class="sort-by-dropdown">
+             Sort by : <strong>Recommended</strong> <span class="dropdown-arrow">▼</span>
+          </div>
+        </div>
+
+        <div *ngIf="isLoading" class="loading">Loading products...</div>
+        <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+        <div *ngIf="noResults" class="no-results">No products found</div>
+
+        <div class="grid" *ngIf="!noResults">
+          <ng-container *ngFor="let product of products">
+            <app-product-card
+              [product]="product"
+              (productClick)="openProductDetails($event)"
+              (addToCart)="onAddToCart($event)">
+            </app-product-card>
+          </ng-container>
+        </div>
       </div>
 
-      <div class="cart-items">
-        <div class="cart-item" *ngFor="let item of cartItems; let i = index">
-          <input type="checkbox" class="item-checkbox" checked>
-          <div class="item-image-wrapper">
-            <img [src]="item.imageUrl" [alt]="item.productName">
-          </div>
-          <div class="item-details">
-            <div class="item-title-row">
-               <h3>{{ item.productName }}</h3>
-               <button class="delete-item-btn" (click)="removeFromCart(i)">🗑</button>
-            </div>
-            <div class="item-specs">
-              <span class="spec-badge">{{ item.storage || '8/256' }}</span>
-              <span class="spec-color"><span class="color-dot"></span> {{ item.color || 'Silver' }}</span>
-            </div>
-            <div class="item-controls-row">
-              <div class="qty-controls">
-                <button (click)="decreaseQty(i)">-</button>
-                <span>{{ item.quantity }}</span>
-                <button (click)="increaseQty(i)" class="plus-btn">+</button>
+      <!-- CART VIEW -->
+      <div class="cart-section" *ngIf="currentView === 'cart'">
+        <div class="cart-header">
+          <h2>Bag</h2>
+          <button class="delete-all-btn" (click)="clearCart()">Remove All</button>
+        </div>
+
+        <div class="cart-layout">
+          <div class="cart-items">
+            <div class="cart-item" *ngFor="let item of cartItems; let i = index">
+              <input type="checkbox" class="item-checkbox" checked>
+              <div class="item-image-wrapper">
+                <img [src]="item.imageUrl" [alt]="item.productName">
               </div>
-              <div class="item-total">Total ${{ item.price * item.quantity }}</div>
+              <div class="item-details">
+                <div class="item-title-row">
+                   <h3>{{ item.productName }}</h3>
+                   <button class="delete-item-btn" (click)="removeFromCart(i)">🗑</button>
+                </div>
+                <div class="item-specs">
+                  <span class="spec-badge">{{ item.storage || '8/256' }}</span>
+                  <span class="spec-color"><span class="color-dot"></span> {{ item.color || 'Silver' }}</span>
+                </div>
+                <div class="item-controls-row">
+                  <div class="qty-controls">
+                    <button (click)="decreaseQty(i)">-</button>
+                    <span>{{ item.quantity }}</span>
+                    <button (click)="increaseQty(i)" class="plus-btn">+</button>
+                  </div>
+                  <div class="item-total">Total Rs. {{ item.price * item.quantity }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="cartItems.length === 0" class="empty-cart-msg">
+              Your bag is empty.
+            </div>
+          </div>
+
+          <div class="cart-summary">
+            <div class="promo-box">
+              <div class="promo-info">
+                <span class="promo-icon">%</span>
+                <span *ngIf="appliedPromo">{{ appliedPromo }} ({{ promoDiscountPercentage * 100 }}%)</span>
+                <span *ngIf="!appliedPromo">Apply Coupons</span>
+              </div>
+              <button class="change-promo-btn" (click)="togglePromoMenu()">Apply</button>
+            </div>
+
+            <!-- PROMO DROPDOWN / POPUP -->
+            <div class="promo-dropdown" *ngIf="showPromoMenu">
+              <h4>Available Coupons</h4>
+              <div class="promo-option" *ngFor="let p of availablePromos" (click)="applyPromoCode(p.code)">
+                <span class="p-code">{{ p.code }}</span>
+                <span class="p-desc">{{ p.desc }}</span>
+              </div>
+              <div *ngIf="promoError" class="promo-error">{{ promoError }}</div>
+            </div>
+
+            <div class="summary-details">
+               <h4>PRICE DETAILS ({{cartItems.length}} Items)</h4>
+              <div class="summary-row">
+                <span>Total MRP</span>
+                <span class="val">Rs. {{ getTotalPrice() }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Discount on MRP</span>
+                <span class="val discount">-Rs. {{ getDiscount() }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Coupon Discount</span>
+                <span class="val apply-coupon" (click)="togglePromoMenu()">Apply Coupon</span>
+              </div>
+              <div class="summary-row">
+                <span>Convenience Fee</span>
+                <span class="val"><span style="text-decoration: line-through; color: #999; margin-right:4px;">Rs. 99</span><span style="color:#03a685;">FREE</span></span>
+              </div>
+              <div class="summary-row total-row">
+                <span>Total Amount</span>
+                <span class="val">Rs. {{ getTotalPayment() }}</span>
+              </div>
+
+              <button class="proceed-btn" (click)="proceedToPayment()">PLACE ORDER</button>
             </div>
           </div>
         </div>
-
-        <div *ngIf="cartItems.length === 0" class="empty-cart-msg">
-          Your cart is empty.
-        </div>
       </div>
-
-      <div class="cart-summary">
-        <div class="promo-box">
-          <div class="promo-info">
-            <span class="promo-icon">%</span>
-            <span *ngIf="appliedPromo">{{ appliedPromo }} ({{ promoDiscountPercentage * 100 }}%)</span>
-            <span *ngIf="!appliedPromo">Select Promo Code</span>
-          </div>
-          <button class="change-promo-btn" (click)="togglePromoMenu()">Change Promo</button>
-        </div>
-
-        <!-- PROMO DROPDOWN / POPUP -->
-        <div class="promo-dropdown" *ngIf="showPromoMenu">
-          <h4>Available Promos</h4>
-          <div class="promo-option" *ngFor="let p of availablePromos" (click)="applyPromoCode(p.code)">
-            <span class="p-code">{{ p.code }}</span>
-            <span class="p-desc">{{ p.desc }}</span>
-          </div>
-          <div *ngIf="promoError" class="promo-error">{{ promoError }}</div>
-        </div>
-
-        <div class="summary-row">
-          <span>Total Product Price</span>
-          <span class="val">${{ getTotalPrice() }}</span>
-        </div>
-        <div class="summary-row">
-          <span>Discount</span>
-          <span class="val discount">-${{ getDiscount() }}</span>
-        </div>
-        <div class="summary-row total-row">
-          <span>Total Payment</span>
-          <span class="val">${{ getTotalPayment() }}</span>
-        </div>
-
-        <button class="proceed-btn" (click)="proceedToPayment()">Proceed to Payment</button>
-      </div>
-
     </div>
-
   </div>
-
 </div>
