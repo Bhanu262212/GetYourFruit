@@ -1,0 +1,24 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { ProductGalleryComponent } from './product-gallery.component';
+
+describe('ProductGalleryComponent', () => {
+  let component: ProductGalleryComponent;
+  let fixture: ComponentFixture<ProductGalleryComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProductGalleryComponent],
+      providers: [provideHttpClient()]
+    })
+    .compileComponents();
+
+    fixture = TestBed.createComponent(ProductGalleryComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

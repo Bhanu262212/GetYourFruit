@@ -1,0 +1,24 @@
+<div class="gallery-wrapper" #galleryContainer>
+  <div class="bg-text" #bgText>SOUTHERN GROVES</div>
+
+  <div class="horizontal-scroll">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="card-inner">
+        <div class="image-wrapper">
+          <img [src]="product.imageUrl" [alt]="product.productName" class="mango-image" />
+          <div class="clip-overlay">
+            <button class="add-btn" (click)="addToCart(product)">Harvest</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3>{{ product.productName }}</h3>
+          <p class="desc">{{ product.description }}</p>
+          <div class="bottom-row">
+            <span class="price">${{ product.price }}</span>
+            <span class="rating">★ {{ product.rating }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

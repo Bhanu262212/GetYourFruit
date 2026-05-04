@@ -1,0 +1,45 @@
+<div class="product-listing-page">
+  <header class="top-nav">
+    <div class="social-icons">
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-youtube"></i></a>
+    </div>
+    <div class="logo">
+      <h1>Aamrai</h1>
+      <p>ORGANIC</p>
+    </div>
+    <nav class="nav-links">
+      <a routerLink="/buy-mangoes">Buy Mangoes <i class="fas fa-chevron-down"></i></a>
+      <a routerLink="/products">Products <i class="fas fa-chevron-down"></i></a>
+      <a routerLink="/aamrai-aamras">Aamrai Aamras</a>
+      <a routerLink="/gifting">Gifting <i class="fas fa-chevron-down"></i></a>
+      <a routerLink="/about">About Us</a>
+      <a routerLink="/blogs">Blogs</a>
+    </nav>
+    <div class="user-actions">
+      <a routerLink="/profile"><i class="fas fa-user"></i></a>
+      <a routerLink="/cart" class="cart-icon">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge">{{ cartItemCount }}</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="hero-section">
+    <h2>Choose from our Range of Handpicked <span class="highlight">Aamrai Organic Mangoes</span></h2>
+  </main>
+
+  <section class="product-grid">
+    <div class="product-card" *ngFor="let product of products">
+      <img [src]="product.imageUrl" [alt]="product.productName">
+      <h3>{{ product.productName }}</h3>
+      <button class="buy-now-btn" (click)="buyNow(product)">Buy Now</button>
+    </div>
+  </section>
+
+  <a href="https://wa.me/your-whatsapp-number" class="whatsapp-fab" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+</div>

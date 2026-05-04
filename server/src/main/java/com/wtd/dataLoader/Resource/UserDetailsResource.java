@@ -41,9 +41,9 @@ public class UserDetailsResource {
     }
 
     @GetMapping("/getUserDetails")
-    public ResponseEntity<?> getUserDetails(String id) {
-        log.info("Fetching user details for id: {}", id);
-        User user = userDetailsService.getUserById(id);
+    public ResponseEntity<?> getUserDetails(String username) {
+        log.info("Fetching user details for username: {}", username);
+        User user = userDetailsService.getUserByUsername(username);
         if (user != null) {
             return ResponseEntity.ok(user);
         }

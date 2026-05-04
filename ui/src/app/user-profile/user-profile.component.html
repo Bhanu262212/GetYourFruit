@@ -1,0 +1,47 @@
+<div class="profile-page">
+  <div class="profile-container" *ngIf="user">
+
+    <div class="profile-header">
+      <div class="avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+      <div class="user-info">
+        <h1>{{ user.username }}'s Grove</h1>
+        <p>{{ user.email || 'Harvester Level 1' }}</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Tree Maturity</h3>
+        <div class="tree-progress-bar">
+          <div class="tree-fill"></div>
+        </div>
+        <p class="stat-desc">{{ treeMaturity }}% until next harvest tier</p>
+      </div>
+
+      <div class="stat-card">
+        <h3>Harvest History</h3>
+        <ul class="history-list" *ngIf="harvestHistory.length > 0">
+          <li *ngFor="let record of harvestHistory">
+            <span class="date">{{ record.date }}</span>
+            <span class="amount">{{ record.amount }} Mangoes</span>
+          </li>
+        </ul>
+        <p *ngIf="harvestHistory.length === 0" class="empty">No harvests yet.</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="settings-btn" (click)="toggleOverlay()">Grove Settings</button>
+      <button class="logout-btn" (click)="logout()">Leave Grove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Simple generic settings overlay -->
+<div class="settings-overlay" *ngIf="showOverlay" (click)="toggleOverlay()">
+  <div class="settings-modal" (click)="$event.stopPropagation()">
+    <h2>Settings</h2>
+    <p>Preferences coming soon...</p>
+    <button (click)="toggleOverlay()">Close</button>
+  </div>
+</div>
