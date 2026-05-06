@@ -1,45 +1,223 @@
 <div class="product-listing-page">
-  <header class="top-nav">
-    <div class="social-icons">
-      <a href="#"><i class="fab fa-instagram"></i></a>
-      <a href="#"><i class="fab fa-linkedin-in"></i></a>
-      <a href="#"><i class="fab fa-facebook-f"></i></a>
-      <a href="#"><i class="fab fa-youtube"></i></a>
-    </div>
-    <div class="logo">
-      <h1>Aamrai</h1>
-      <p>ORGANIC</p>
-    </div>
-    <nav class="nav-links">
-      <a routerLink="/buy-mangoes">Buy Mangoes <i class="fas fa-chevron-down"></i></a>
-      <a routerLink="/products">Products <i class="fas fa-chevron-down"></i></a>
-      <a routerLink="/aamrai-aamras">Aamrai Aamras</a>
-      <a routerLink="/gifting">Gifting <i class="fas fa-chevron-down"></i></a>
-      <a routerLink="/about">About Us</a>
-      <a routerLink="/blogs">Blogs</a>
-    </nav>
-    <div class="user-actions">
-      <a routerLink="/profile"><i class="fas fa-user"></i></a>
-      <a routerLink="/cart" class="cart-icon">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-badge">{{ cartItemCount }}</span>
+
+  <!-- ═══════ STICKY HEADER ═══════ -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <!-- Logo -->
+      <a routerLink="/products" class="brand" id="brandLogo">
+        <span class="brand-name">Southern</span>
+        <span class="brand-sub">GROVES</span>
       </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="main-nav" id="mainNav">
+        <a routerLink="/products" class="nav-link active" id="navProducts">
+          Buy Fruits <i class="fas fa-chevron-down"></i>
+        </a>
+        <a routerLink="/products" class="nav-link" id="navMangoes">Mangoes</a>
+        <a routerLink="/products" class="nav-link" id="navAbout">About Us</a>
+      </nav>
+
+      <!-- User Actions -->
+      <div class="header-actions" id="headerActions">
+        <a routerLink="/my-account" class="action-btn" id="accountBtn" aria-label="My Account">
+          <i class="fas fa-user"></i>
+        </a>
+        <button class="action-btn cart-action" (click)="toggleCart()" id="cartBtn" aria-label="View Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+        </button>
+        <button class="mobile-menu-btn" (click)="toggleMobileMenu()" id="mobileMenuBtn" aria-label="Menu">
+          <i [class]="isMobileMenuOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" [class.open]="isMobileMenuOpen" id="mobileNav">
+      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">Buy Fruits</a>
+      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">Mangoes</a>
+      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">About Us</a>
+      <a routerLink="/my-account" class="mobile-nav-link" (click)="toggleMobileMenu()">My Account</a>
     </div>
   </header>
 
-  <main class="hero-section">
-    <h2>Choose from our Range of Handpicked <span class="highlight">Aamrai Organic Mangoes</span></h2>
-  </main>
-
-  <section class="product-grid">
-    <div class="product-card" *ngFor="let product of products">
-      <img [src]="product.imageUrl" [alt]="product.productName">
-      <h3>{{ product.productName }}</h3>
-      <button class="buy-now-btn" (click)="buyNow(product)">Buy Now</button>
+  <!-- ═══════ HERO SECTION ═══════ -->
+  <section class="hero" id="heroSection">
+    <div class="hero-bg">
+      <img src="images/hero-mangoes.png" alt="Premium organic mangoes" class="hero-bg-img">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <span class="hero-badge" id="heroBadge">
+        <i class="fas fa-leaf"></i> Organic & Certified
+      </span>
+      <h1 class="hero-title" id="heroTitle">
+        Premium Organic <br>
+        <span class="hero-highlight">Handpicked Fruits</span>
+      </h1>
+      <p class="hero-description" id="heroDesc">
+        From certified farms to your table. Naturally ripened, <br class="hide-mobile">
+        chosen carefully, delivered fresh.
+      </p>
+      <div class="hero-actions" id="heroActions">
+        <a href="#shopSection" class="btn-primary btn-pill hero-cta" id="heroCtaShop">
+          Shop Now <i class="fas fa-arrow-right"></i>
+        </a>
+        <a routerLink="/products" class="btn-secondary btn-pill hero-cta" id="heroCtaExplore">
+          Explore Collection
+        </a>
+      </div>
     </div>
   </section>
 
-  <a href="https://wa.me/your-whatsapp-number" class="whatsapp-fab" target="_blank">
+  <!-- ═══════ TRUST BADGES ═══════ -->
+  <section class="trust-strip" id="trustStrip">
+    <div class="trust-inner">
+      <div class="trust-badge" id="trustOrganic">
+        <div class="trust-icon"><i class="fas fa-seedling"></i></div>
+        <div class="trust-text">
+          <strong>100% Organic</strong>
+          <span>Certified Farms</span>
+        </div>
+      </div>
+      <div class="trust-badge" id="trustDelivery">
+        <div class="trust-icon"><i class="fas fa-truck"></i></div>
+        <div class="trust-text">
+          <strong>Pan-India Delivery</strong>
+          <span>Farm Fresh</span>
+        </div>
+      </div>
+      <div class="trust-badge" id="trustNatural">
+        <div class="trust-icon"><i class="fas fa-sun"></i></div>
+        <div class="trust-text">
+          <strong>Naturally Ripened</strong>
+          <span>No Chemicals</span>
+        </div>
+      </div>
+      <div class="trust-badge" id="trustQuality">
+        <div class="trust-icon"><i class="fas fa-award"></i></div>
+        <div class="trust-text">
+          <strong>Premium Quality</strong>
+          <span>Handpicked</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PRODUCTS SECTION ═══════ -->
+  <section class="shop-section" id="shopSection">
+    <div class="section-header" id="sectionHeader">
+      <span class="section-tag">Our Collection</span>
+      <h2 class="section-title">
+        Taste the Best of <span class="title-accent">Nature's Bounty</span>
+      </h2>
+      <p class="section-desc">
+        Choose from our range of handpicked organic fruits, straight from the grove.
+      </p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container" id="searchContainer">
+      <div class="search-bar">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          placeholder="Search our collection..."
+          (input)="onSearch($event)"
+          id="searchInput"
+        >
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading" id="loadingState">
+      <div class="loading-spinner"></div>
+      <p>Loading fresh picks...</p>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid" id="productGrid" *ngIf="!isLoading">
+      <div
+        class="product-card"
+        *ngFor="let product of products; let i = index"
+        [style.animation-delay]="(i * 0.08) + 's'"
+        [id]="'product-' + product.id"
+      >
+        <div class="card-image-wrap">
+          <img [src]="product.imageUrl" [alt]="product.productName" class="card-image" loading="lazy">
+          <div class="card-overlay">
+            <button class="quick-view-btn" (click)="buyNow(product)" id="quickView-{{product.id}}">
+              <i class="fas fa-eye"></i> Quick View
+            </button>
+          </div>
+          <span class="card-badge" *ngIf="product.rating && product.rating >= 4.5">
+            <i class="fas fa-star"></i> Top Rated
+          </span>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{ product.productName }}</h3>
+          <p class="card-price" *ngIf="product.price">
+            <span class="price-currency">₹</span>{{ product.price | number:'1.0-0' }}
+          </p>
+          <div class="card-rating" *ngIf="product.rating">
+            <div class="stars">
+              <i class="fas fa-star" *ngFor="let s of [1,2,3,4,5]"
+                 [class.filled]="s <= (product.rating || 0)"></i>
+            </div>
+            <span class="review-count" *ngIf="product.reviewCount">({{ product.reviewCount }})</span>
+          </div>
+          <button class="buy-btn" (click)="buyNow(product)" id="buyBtn-{{product.id}}">
+            Buy Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && products.length === 0" id="emptyState">
+      <i class="fas fa-box-open empty-icon"></i>
+      <h3>No products found</h3>
+      <p>Try adjusting your search or check back soon for fresh arrivals.</p>
+    </div>
+  </section>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer class="site-footer" id="siteFooter">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <span class="brand-name">Southern</span>
+          <span class="brand-sub">GROVES</span>
+        </div>
+        <p class="footer-tagline">Chosen Carefully, Delivered Fresh.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram" id="socialIg"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook" id="socialFb"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="YouTube" id="socialYt"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Quick Links</h4>
+        <a routerLink="/products">Buy Fruits</a>
+        <a routerLink="/my-account">My Account</a>
+        <a routerLink="/products">About Us</a>
+      </div>
+      <div class="footer-links-group">
+        <h4>Support</h4>
+        <a href="#">Contact Us</a>
+        <a href="#">Shipping Info</a>
+        <a href="#">Return Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Southern Groves. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ═══════ WHATSAPP FAB ═══════ -->
+  <a href="https://wa.me/919167999411" class="whatsapp-fab" target="_blank" id="whatsappFab" aria-label="Chat on WhatsApp">
     <i class="fab fa-whatsapp"></i>
   </a>
+
 </div>

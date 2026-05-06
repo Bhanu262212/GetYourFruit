@@ -1,0 +1,357 @@
+<!-- ════════════════════════════════════════════════════════════════════
+     SCENARIO A: NOT AUTHENTICATED — Login + Register Side-by-Side
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="auth-page" *ngIf="!isAuthenticated">
+
+  <!-- Decorative top accent -->
+  <div class="auth-top-accent">
+    <div class="accent-leaf left-leaf">🍃</div>
+    <div class="accent-text">
+      <h1>Southern <span>Groves</span></h1>
+      <p>Welcome to your account</p>
+    </div>
+    <div class="accent-leaf right-leaf">🌿</div>
+  </div>
+
+  <div class="auth-card">
+
+    <!-- ─── LEFT COLUMN: LOGIN ─── -->
+    <div class="auth-column login-column">
+      <div class="column-header">
+        <div class="column-icon">
+          <i class="fas fa-sign-in-alt"></i>
+        </div>
+        <h2>Log In</h2>
+        <p class="column-subtitle">Welcome back! Log in to your account.</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form" id="loginForm">
+        <!-- Username -->
+        <div class="form-field">
+          <label for="login-username">Username <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-user field-icon"></i>
+            <input
+              id="login-username"
+              type="text"
+              formControlName="username"
+              placeholder="Enter your username"
+              autocomplete="username"
+            />
+          </div>
+          <div class="field-error" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.hasError('required')">
+            Username is required.
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-field">
+          <label for="login-password">Password <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-lock field-icon"></i>
+            <input
+              id="login-password"
+              [type]="showLoginPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="eye-toggle" (click)="toggleLoginPassword()" tabindex="-1" aria-label="Toggle password visibility">
+              <i [class]="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div class="field-error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')">
+            Password is required.
+          </div>
+          <div class="field-error" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')">
+            Password must be at least 6 characters.
+          </div>
+        </div>
+
+        <!-- Error / Success Messages -->
+        <div class="msg msg-error" *ngIf="loginError">
+          <i class="fas fa-exclamation-circle"></i> {{ loginError }}
+        </div>
+        <div class="msg msg-success" *ngIf="loginSuccess">
+          <i class="fas fa-check-circle"></i> {{ loginSuccess }}
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-golden" [disabled]="loginLoading" id="loginBtn">
+          <span *ngIf="!loginLoading">Log in</span>
+          <span *ngIf="loginLoading" class="spinner"></span>
+        </button>
+      </form>
+    </div>
+
+    <!-- ─── DIVIDER ─── -->
+    <div class="auth-divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">OR</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- ─── RIGHT COLUMN: REGISTER ─── -->
+    <div class="auth-column register-column">
+      <div class="column-header">
+        <div class="column-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <h2>Register</h2>
+        <p class="column-subtitle">Create a new account. It's free and only takes a minute.</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" id="registerForm">
+        <!-- Full Name -->
+        <div class="form-field">
+          <label for="reg-fullname">Full Name <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-id-card field-icon"></i>
+            <input
+              id="reg-fullname"
+              type="text"
+              formControlName="fullName"
+              placeholder="Your full name"
+              autocomplete="name"
+            />
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.hasError('required')">
+            Full name is required.
+          </div>
+        </div>
+
+        <!-- Username -->
+        <div class="form-field">
+          <label for="reg-username">Username <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-user field-icon"></i>
+            <input
+              id="reg-username"
+              type="text"
+              formControlName="username"
+              placeholder="Choose a username"
+              autocomplete="username"
+            />
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.hasError('required')">
+            Username is required.
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.hasError('minlength')">
+            Username must be at least 3 characters.
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-field">
+          <label for="reg-email">Email Address <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-envelope field-icon"></i>
+            <input
+              id="reg-email"
+              type="email"
+              formControlName="email"
+              placeholder="your@email.com"
+              autocomplete="email"
+            />
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')">
+            Email is required.
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('email')">
+            Please enter a valid email address.
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-field">
+          <label for="reg-password">Password <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-lock field-icon"></i>
+            <input
+              id="reg-password"
+              [type]="showRegisterPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Create a password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye-toggle" (click)="toggleRegisterPassword()" tabindex="-1" aria-label="Toggle password visibility">
+              <i [class]="showRegisterPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')">
+            Password is required.
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')">
+            Must be at least 8 characters.
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('pattern')">
+            Must include letters, numbers, and a special character.
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-field">
+          <label for="reg-confirm">Confirm Password <span class="req">*</span></label>
+          <div class="input-wrap">
+            <i class="fas fa-lock field-icon"></i>
+            <input
+              id="reg-confirm"
+              [type]="showRegisterConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="Confirm your password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye-toggle" (click)="toggleRegisterConfirmPassword()" tabindex="-1" aria-label="Toggle password visibility">
+              <i [class]="showRegisterConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div class="field-error" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.hasError('required')">
+            Please confirm your password.
+          </div>
+        </div>
+
+        <!-- Phone Number (optional) -->
+        <div class="form-field">
+          <label for="reg-phone">Phone Number</label>
+          <div class="input-wrap">
+            <i class="fas fa-phone field-icon"></i>
+            <input
+              id="reg-phone"
+              type="tel"
+              formControlName="phoneNumber"
+              placeholder="Your phone number"
+              autocomplete="tel"
+            />
+          </div>
+        </div>
+
+        <!-- Error / Success Messages -->
+        <div class="msg msg-error" *ngIf="registerError">
+          <i class="fas fa-exclamation-circle"></i> {{ registerError }}
+        </div>
+        <div class="msg msg-success" *ngIf="registerSuccess">
+          <i class="fas fa-check-circle"></i> {{ registerSuccess }}
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-golden" [disabled]="registerLoading" id="registerBtn">
+          <span *ngIf="!registerLoading">Register</span>
+          <span *ngIf="registerLoading" class="spinner"></span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SCENARIO B: AUTHENTICATED — User Profile Dashboard
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="profile-dashboard" *ngIf="isAuthenticated && currentUser">
+
+  <div class="dashboard-container">
+
+    <!-- Profile Header -->
+    <div class="dash-header">
+      <div class="dash-avatar">
+        <span>{{ getUserInitials() }}</span>
+      </div>
+      <div class="dash-welcome">
+        <h1>Welcome, <span class="name-highlight">{{ getDisplayName() }}</span></h1>
+        <p class="dash-sub">Manage your Southern Groves account</p>
+      </div>
+      <button class="btn-golden btn-logout" (click)="onLogout()" [disabled]="logoutLoading" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span *ngIf="!logoutLoading">Log out</span>
+        <span *ngIf="logoutLoading" class="spinner"></span>
+      </button>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="dash-grid">
+
+      <!-- Account Details Card -->
+      <div class="dash-card">
+        <div class="card-icon-header">
+          <div class="card-icon"><i class="fas fa-user-circle"></i></div>
+          <h3>Account Details</h3>
+        </div>
+        <table class="detail-table">
+          <tr>
+            <td class="detail-label"><i class="fas fa-user"></i> Username</td>
+            <td class="detail-value">{{ currentUser.username }}</td>
+          </tr>
+          <tr>
+            <td class="detail-label"><i class="fas fa-envelope"></i> Email</td>
+            <td class="detail-value">{{ currentUser.email }}</td>
+          </tr>
+          <tr *ngIf="currentUser.fullName">
+            <td class="detail-label"><i class="fas fa-id-card"></i> Full Name</td>
+            <td class="detail-value">{{ currentUser.fullName }}</td>
+          </tr>
+          <tr *ngIf="currentUser.phoneNumber">
+            <td class="detail-label"><i class="fas fa-phone"></i> Phone</td>
+            <td class="detail-value">{{ currentUser.phoneNumber }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Shipping Details Card -->
+      <div class="dash-card" *ngIf="currentUser.defaultShippingAddress || currentUser.city || currentUser.state">
+        <div class="card-icon-header">
+          <div class="card-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <h3>Shipping Address</h3>
+        </div>
+        <table class="detail-table">
+          <tr *ngIf="currentUser.defaultShippingAddress">
+            <td class="detail-label">Address</td>
+            <td class="detail-value">{{ currentUser.defaultShippingAddress }}</td>
+          </tr>
+          <tr *ngIf="currentUser.city">
+            <td class="detail-label">City</td>
+            <td class="detail-value">{{ currentUser.city }}</td>
+          </tr>
+          <tr *ngIf="currentUser.state">
+            <td class="detail-label">State</td>
+            <td class="detail-value">{{ currentUser.state }}</td>
+          </tr>
+          <tr *ngIf="currentUser.zipCode">
+            <td class="detail-label">Zip Code</td>
+            <td class="detail-value">{{ currentUser.zipCode }}</td>
+          </tr>
+          <tr *ngIf="currentUser.country">
+            <td class="detail-label">Country</td>
+            <td class="detail-value">{{ currentUser.country }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Quick Links Card -->
+      <div class="dash-card quick-links-card">
+        <div class="card-icon-header">
+          <div class="card-icon"><i class="fas fa-bolt"></i></div>
+          <h3>Quick Links</h3>
+        </div>
+        <div class="quick-links">
+          <a routerLink="/products" class="quick-link">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Browse Products</span>
+            <i class="fas fa-chevron-right arrow"></i>
+          </a>
+          <a routerLink="/cart" class="quick-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span>My Cart</span>
+            <i class="fas fa-chevron-right arrow"></i>
+          </a>
+          <a class="quick-link" style="cursor: default; opacity: 0.5;">
+            <i class="fas fa-history"></i>
+            <span>Order History</span>
+            <span class="coming-soon">Coming Soon</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -4,6 +4,7 @@ import { SignupComponent } from './signup/signup.component';
 import { SouthernGrovesLayoutComponent } from './southern-groves-layout/southern-groves-layout.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { ProductListingComponent } from './product-listing/product-listing.component';
+import { MyAccountComponent } from './my-account/my-account.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'products', pathMatch: 'full' },
@@ -11,5 +12,6 @@ export const routes: Routes = [
   { path: 'signup', component: SignupComponent, data: { animation: 'SignupPage' } },
   { path: 'home', component: SouthernGrovesLayoutComponent, data: { animation: 'HomePage' } },
   { path: 'profile', component: UserProfileComponent, data: { animation: 'ProfilePage' } },
-  { path: 'products', component: ProductListingComponent, data: { animation: 'ProductsPage' } }
+  { path: 'products', component: ProductListingComponent, data: { animation: 'ProductsPage' } },
+  { path: 'my-account', component: MyAccountComponent, data: { animation: 'MyAccountPage' } }
 ];
