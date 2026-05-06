@@ -2,7 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { AuthService } from '../services/auth.service';
 import { User } from '../models/user.model';
 
@@ -11,7 +13,18 @@ import { User } from '../models/user.model';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './my-account.component.html',
-  styleUrls: ['./my-account.component.css']
+  styleUrls: ['./my-account.component.css'],
+  animations: [
+    trigger('formAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
 })
 export class MyAccountComponent implements OnInit, OnDestroy {
   // Auth state
@@ -19,6 +32,9 @@ export class MyAccountComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   private authSub!: Subscription;
   private userSub!: Subscription;
+
+  // Which form to show: 'login' or 'register'
+  activeForm: 'login' | 'register' = 'login';
 
   // Forms
   loginForm!: FormGroup;
@@ -39,7 +55,8 @@ export class MyAccountComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -62,7 +79,6 @@ export class MyAccountComponent implements OnInit, OnDestroy {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      fullName: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])/)]],
       confirmPassword: ['', [Validators.required]],
       phoneNumber: [''],
@@ -86,6 +102,24 @@ export class MyAccountComponent implements OnInit, OnDestroy {
     this.userSub?.unsubscribe();
   }
 
+  // ─── Toggle between login and register ─────────────────
+  showLogin(): void {
+    this.activeForm = 'login';
+    this.registerError = '';
+    this.registerSuccess = '';
+  }
+
+  showRegister(): void {
+    this.activeForm = 'register';
+    this.loginError = '';
+    this.loginSuccess = '';
+  }
+
+  // ─── Navigate back ────────────────────────────────────
+  goBack(): void {
+    this.location.back();
+  }
+
   // ─── Login ─────────────────────────────────────────────
   onLogin(): void {
     if (this.loginForm.invalid) {
@@ -100,9 +134,9 @@ export class MyAccountComponent implements OnInit, OnDestroy {
     const { username, password } = this.loginForm.value;
 
     this.authService.login({ username, password }).subscribe({
-      next: () => {
+      next: (user) => {
         this.loginLoading = false;
-        this.loginSuccess = 'Login successful!';
+        this.loginSuccess = 'Login successful! Welcome back.';
         // Fetch fresh profile data after login
         this.authService.fetchProfile().subscribe();
       },
@@ -137,9 +171,8 @@ export class MyAccountComponent implements OnInit, OnDestroy {
     const payload = {
       username: formVal.username,
       email: formVal.email,
-      fullName: formVal.fullName,
       password: formVal.password,
-      phoneNumber: formVal.phoneNumber,
+      phoneNumber: formVal.phoneNumber ? parseInt(formVal.phoneNumber, 10) : undefined,
       defaultShippingAddress: formVal.defaultShippingAddress,
       city: formVal.city,
       state: formVal.state,
@@ -152,11 +185,19 @@ export class MyAccountComponent implements OnInit, OnDestroy {
         this.registerLoading = false;
         this.registerSuccess = 'Account created successfully! You can now log in.';
         this.registerForm.reset();
+        // Auto-switch to login after a short delay
+        setTimeout(() => this.showLogin(), 2000);
       },
       error: (err) => {
         this.registerLoading = false;
         if (err.status === 409) {
-          this.registerError = 'Username or email already exists.';
+          this.registerError = 'Username already exists.';
+        } else if (err.status === 200 || err.status === 0) {
+          // Sometimes backend returns 200 OK but it's parsed as error if content isn't JSON
+          this.registerLoading = false;
+          this.registerSuccess = 'Account created successfully! You can now log in.';
+          this.registerForm.reset();
+          setTimeout(() => this.showLogin(), 2000);
         } else {
           this.registerError = 'Registration failed. Please try again.';
         }
@@ -191,7 +232,7 @@ export class MyAccountComponent implements OnInit, OnDestroy {
   // ─── Helper for user initials ─────────────────────────
   getUserInitials(): string {
     if (!this.currentUser) return '?';
-    const name = this.currentUser.fullName || this.currentUser.username || '';
+    const name = this.currentUser.username || '';
     const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
@@ -201,6 +242,6 @@ export class MyAccountComponent implements OnInit, OnDestroy {
 
   getDisplayName(): string {
     if (!this.currentUser) return 'User';
-    return this.currentUser.fullName || this.currentUser.username || 'User';
+    return this.currentUser.username || 'User';
   }
 }

@@ -1,7 +1,12 @@
 <!-- ════════════════════════════════════════════════════════════════════
-     SCENARIO A: NOT AUTHENTICATED — Login + Register Side-by-Side
+     SCENARIO A: NOT AUTHENTICATED — Login / Register Toggle
      ════════════════════════════════════════════════════════════════════ -->
 <div class="auth-page" *ngIf="!isAuthenticated">
+
+  <!-- Back Arrow -->
+  <button class="back-arrow" (click)="goBack()" aria-label="Go back" id="backBtn">
+    <i class="fas fa-arrow-left"></i>
+  </button>
 
   <!-- Decorative top accent -->
   <div class="auth-top-accent">
@@ -15,14 +20,14 @@
 
   <div class="auth-card">
 
-    <!-- ─── LEFT COLUMN: LOGIN ─── -->
-    <div class="auth-column login-column">
+    <!-- ─── LOGIN FORM ─── -->
+    <div class="auth-form-section" *ngIf="activeForm === 'login'" @formAnimation>
       <div class="column-header">
         <div class="column-icon">
           <i class="fas fa-sign-in-alt"></i>
         </div>
-        <h2>Log In</h2>
-        <p class="column-subtitle">Welcome back! Log in to your account.</p>
+        <h2>Welcome Back</h2>
+        <p class="column-subtitle">Log in to your account to continue.</p>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form" id="loginForm">
@@ -78,47 +83,29 @@
 
         <!-- Submit -->
         <button type="submit" class="btn-golden" [disabled]="loginLoading" id="loginBtn">
-          <span *ngIf="!loginLoading">Log in</span>
+          <span *ngIf="!loginLoading">Log In</span>
           <span *ngIf="loginLoading" class="spinner"></span>
         </button>
       </form>
+
+      <!-- Switch to Register -->
+      <div class="auth-switch">
+        <span>Don't have an account?</span>
+        <button class="switch-btn" (click)="showRegister()" id="switchToRegister">Sign Up</button>
+      </div>
     </div>
 
-    <!-- ─── DIVIDER ─── -->
-    <div class="auth-divider">
-      <div class="divider-line"></div>
-      <span class="divider-text">OR</span>
-      <div class="divider-line"></div>
-    </div>
-
-    <!-- ─── RIGHT COLUMN: REGISTER ─── -->
-    <div class="auth-column register-column">
+    <!-- ─── REGISTER FORM ─── -->
+    <div class="auth-form-section" *ngIf="activeForm === 'register'" @formAnimation>
       <div class="column-header">
         <div class="column-icon">
           <i class="fas fa-user-plus"></i>
         </div>
-        <h2>Register</h2>
-        <p class="column-subtitle">Create a new account. It's free and only takes a minute.</p>
+        <h2>Create Account</h2>
+        <p class="column-subtitle">Sign up for a new account. It's free!</p>
       </div>
 
       <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form" id="registerForm">
-        <!-- Full Name -->
-        <div class="form-field">
-          <label for="reg-fullname">Full Name <span class="req">*</span></label>
-          <div class="input-wrap">
-            <i class="fas fa-id-card field-icon"></i>
-            <input
-              id="reg-fullname"
-              type="text"
-              formControlName="fullName"
-              placeholder="Your full name"
-              autocomplete="name"
-            />
-          </div>
-          <div class="field-error" *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.hasError('required')">
-            Full name is required.
-          </div>
-        </div>
 
         <!-- Username -->
         <div class="form-field">
@@ -150,7 +137,7 @@
               id="reg-email"
               type="email"
               formControlName="email"
-              placeholder="your@email.com"
+              placeholder="your&#64;email.com"
               autocomplete="email"
             />
           </div>
@@ -225,6 +212,50 @@
           </div>
         </div>
 
+        <!-- Optional Address Fields (Collapsible) -->
+        <div class="form-field-row">
+          <div class="form-field">
+            <label for="reg-city">City</label>
+            <div class="input-wrap">
+              <input id="reg-city" type="text" formControlName="city" placeholder="City" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="reg-state">State</label>
+            <div class="input-wrap">
+              <input id="reg-state" type="text" formControlName="state" placeholder="State" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field-row">
+          <div class="form-field">
+            <label for="reg-zip">Zip Code</label>
+            <div class="input-wrap">
+              <input id="reg-zip" type="text" formControlName="zipCode" placeholder="Zip Code" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="reg-country">Country</label>
+            <div class="input-wrap">
+              <input id="reg-country" type="text" formControlName="country" placeholder="Country" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="reg-address">Shipping Address</label>
+          <div class="input-wrap">
+            <i class="fas fa-map-marker-alt field-icon"></i>
+            <input
+              id="reg-address"
+              type="text"
+              formControlName="defaultShippingAddress"
+              placeholder="Your default shipping address"
+            />
+          </div>
+        </div>
+
         <!-- Error / Success Messages -->
         <div class="msg msg-error" *ngIf="registerError">
           <i class="fas fa-exclamation-circle"></i> {{ registerError }}
@@ -235,10 +266,16 @@
 
         <!-- Submit -->
         <button type="submit" class="btn-golden" [disabled]="registerLoading" id="registerBtn">
-          <span *ngIf="!registerLoading">Register</span>
+          <span *ngIf="!registerLoading">Create Account</span>
           <span *ngIf="registerLoading" class="spinner"></span>
         </button>
       </form>
+
+      <!-- Switch to Login -->
+      <div class="auth-switch">
+        <span>Already have an account?</span>
+        <button class="switch-btn" (click)="showLogin()" id="switchToLogin">Log In</button>
+      </div>
     </div>
 
   </div>
@@ -249,6 +286,11 @@
      SCENARIO B: AUTHENTICATED — User Profile Dashboard
      ════════════════════════════════════════════════════════════════════ -->
 <div class="profile-dashboard" *ngIf="isAuthenticated && currentUser">
+
+  <!-- Back Arrow -->
+  <button class="back-arrow" (click)="goBack()" aria-label="Go back" id="dashBackBtn">
+    <i class="fas fa-arrow-left"></i>
+  </button>
 
   <div class="dashboard-container">
 
@@ -285,10 +327,6 @@
           <tr>
             <td class="detail-label"><i class="fas fa-envelope"></i> Email</td>
             <td class="detail-value">{{ currentUser.email }}</td>
-          </tr>
-          <tr *ngIf="currentUser.fullName">
-            <td class="detail-label"><i class="fas fa-id-card"></i> Full Name</td>
-            <td class="detail-value">{{ currentUser.fullName }}</td>
           </tr>
           <tr *ngIf="currentUser.phoneNumber">
             <td class="detail-label"><i class="fas fa-phone"></i> Phone</td>

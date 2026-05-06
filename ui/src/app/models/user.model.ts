@@ -3,17 +3,13 @@ export interface User {
   username: string;
   email: string;
   fullName?: string;
-  phoneNumber?: string;
+  password?: string;
+  phoneNumber?: number;
   defaultShippingAddress?: string;
   city?: string;
   state?: string;
   zipCode?: string;
   country?: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: User;
 }
 
 export interface LoginRequest {
@@ -26,7 +22,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   fullName?: string;
-  phoneNumber?: string;
+  phoneNumber?: number;
   defaultShippingAddress?: string;
   city?: string;
   state?: string;
