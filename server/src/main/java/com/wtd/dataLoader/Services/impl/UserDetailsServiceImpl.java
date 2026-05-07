@@ -1,8 +1,11 @@
 package com.wtd.dataLoader.Services.impl;
 
+import com.wtd.dataLoader.Constants;
 import com.wtd.dataLoader.Dto.UserRepository;
 import com.wtd.dataLoader.Entity.User;
 import com.wtd.dataLoader.Services.UserDetailsService;
+
+import java.util.List;
 import com.wtd.dataLoader.Utility.EncryptionUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +56,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .state(user.getState())
                 .zipCode(user.getZipCode())
                 .country(user.getCountry())
+                .role(Constants.USER_ROLE_USER)
                 .build();
-       return userRepository.save(userBuilder);
+        return userRepository.save(userBuilder);
     }
 
     @Override
@@ -62,9 +66,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userRepository.getUserByUsername(username);
     }
 
-    public User getUserById(String id){
+    public User getUserById(String id) {
         log.debug("Fetching user details for ID: {}", id);
         return userRepository.getUserById(id);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        log.debug("Fetching all users");
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User updateUser(User user) {
+        log.debug("Updating user with ID: {}", user.getId());
+        return userRepository.save(user);
     }
 
 }

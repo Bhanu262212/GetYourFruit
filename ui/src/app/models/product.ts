@@ -3,6 +3,8 @@ export interface Product {
   productName: string;
   price: number;
   imageUrl: string;
+  stockStatus?: string;
+  avgUserRating?: number;
   images?: string[];
   description?: string;
   rating?: number;

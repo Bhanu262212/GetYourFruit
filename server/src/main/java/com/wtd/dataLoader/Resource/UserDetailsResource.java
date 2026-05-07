@@ -6,10 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -48,6 +47,23 @@ public class UserDetailsResource {
             return ResponseEntity.ok(user);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    }
+
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<List<User>> getAllUsers() {
+        log.info("Fetching all users");
+        return ResponseEntity.ok(userDetailsService.getAllUsers());
+    }
+
+    @PutMapping("/updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody User user) {
+        log.info("Updating user with ID: {}", user.getId());
+        User existingUser = userDetailsService.getUserById(user.getId());
+        if (existingUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+        existingUser.setRole(user.getRole());
+        return ResponseEntity.ok(userDetailsService.updateUser(existingUser));
     }
 
 }

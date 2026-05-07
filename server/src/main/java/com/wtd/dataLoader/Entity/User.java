@@ -25,5 +25,6 @@ public class User {
     private String state;
     private String zipCode;
     private String country;
+    private String role;
 
 }
