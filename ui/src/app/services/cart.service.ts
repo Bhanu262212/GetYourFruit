@@ -32,6 +32,9 @@ export interface EnrichedCartItem extends CartItem {
 export class CartService {
   private apiUrl = `${environment.apiUrl}/cart`;
   private productsUrl = `${environment.apiUrl}/products`;
+  /** Legacy local-cart key — wiped on startup so old anonymous test data
+   *  never re-appears. The cart is now strictly server-backed. */
+  private readonly LEGACY_LOCAL_CART_KEY = 'sg_local_cart_v1';
 
   private cartCountSubject = new BehaviorSubject<number>(0);
   private cartItemsSubject = new BehaviorSubject<EnrichedCartItem[]>([]);
@@ -43,7 +46,10 @@ export class CartService {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    // Load cart on startup if user is logged in
+    // Purge any stale anonymous-cart data left over from previous versions.
+    this.purgeLegacyLocalCart();
+
+    // Cart state strictly follows the logged-in user.
     this.authService.isAuthenticated$.subscribe(isAuth => {
       if (isAuth) {
         this.refreshCart();
@@ -67,9 +73,22 @@ export class CartService {
     return null;
   }
 
+  /** Wipe any leftover local-cart data. Safe no-op outside the browser. */
+  private purgeLegacyLocalCart(): void {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    try {
+      localStorage.removeItem(this.LEGACY_LOCAL_CART_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
   /**
    * Add a product to cart.
-   * Backend: POST /cart  body: { productId, quantity, userId }
+   *
+   * Cart is strictly server-backed — the caller must be logged in.
+   * Returns `of(null)` if the user is not authenticated so the component
+   * can react (typically by redirecting to /login).
    */
   addToCart(product: Product, quantity: number = 1): Observable<any> {
     const userId = this.getUserId();
@@ -147,19 +166,28 @@ export class CartService {
    */
   clearCart(): Observable<any> {
     const userId = this.getUserId();
-    if (!userId) return of(null);
+    if (!userId) {
+      this.cartCountSubject.next(0);
+      this.cartItemsSubject.next([]);
+      return of(null);
+    }
 
     return this.http.delete(`${this.apiUrl}/${userId}`).pipe(
       tap(() => {
+        // Optimistically clear immediately so the UI feels instant…
         this.cartCountSubject.next(0);
         this.cartItemsSubject.next([]);
+        // …then re-sync with the backend to make sure nothing is left over.
+        this.refreshCart();
       }),
       catchError(err => {
         if (err.status === 200) {
           this.cartCountSubject.next(0);
           this.cartItemsSubject.next([]);
+          this.refreshCart();
           return of(null);
         }
+        console.error('Error clearing cart', err);
         return of(null);
       })
     );
@@ -191,16 +219,20 @@ export class CartService {
       const productMap = new Map<string, Product>();
       products.forEach(p => productMap.set(p.id, p));
 
-      // Enrich cart items with product details
-      const enriched: EnrichedCartItem[] = cartItems.map(ci => {
-        const product = productMap.get(ci.productId);
-        return {
-          ...ci,
-          productName: product?.productName || `Product #${ci.productId}`,
-          price: product?.price || 0,
-          imageUrl: product?.imageUrl || 'assets/placeholder.png'
-        };
-      });
+      // Enrich cart items with product details. Drop any orphan rows
+      // (e.g. cart item whose product no longer exists in the DB) so we
+      // never display "dummy" rows that don't reflect real DB data.
+      const enriched: EnrichedCartItem[] = cartItems
+        .filter(ci => productMap.has(ci.productId))
+        .map(ci => {
+          const product = productMap.get(ci.productId)!;
+          return {
+            ...ci,
+            productName: product.productName,
+            price: product.price || 0,
+            imageUrl: product.imageUrl || 'assets/placeholder.png'
+          };
+        });
 
       this.cartItemsSubject.next(enriched);
       const totalQty = enriched.reduce((sum, item) => sum + item.quantity, 0);

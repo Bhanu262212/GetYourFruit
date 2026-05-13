@@ -11,11 +11,11 @@
 
       <!-- Desktop Navigation -->
       <nav class="main-nav" id="mainNav">
-        <a routerLink="/products" class="nav-link active" id="navProducts">
+        <a routerLink="/products" class="nav-link active" id="navProducts" (click)="goToProducts($event)">
           Buy Fruits <i class="fas fa-chevron-down"></i>
         </a>
-        <a routerLink="/products" class="nav-link" id="navMangoes">Mangoes</a>
-        <a routerLink="/products" class="nav-link" id="navAbout">About Us</a>
+        <a routerLink="/products" class="nav-link" id="navMangoes" (click)="goToProducts($event)">Mangoes</a>
+        <a routerLink="/products" class="nav-link" id="navAbout" (click)="goToProducts($event)">About Us</a>
       </nav>
 
       <!-- User Actions -->
@@ -38,9 +38,9 @@
 
     <!-- Mobile Navigation -->
     <div class="mobile-nav" [class.open]="isMobileMenuOpen" id="mobileNav">
-      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">Buy Fruits</a>
-      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">Mangoes</a>
-      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">About Us</a>
+      <a routerLink="/products" class="mobile-nav-link" (click)="goToProducts($event)">Buy Fruits</a>
+      <a routerLink="/products" class="mobile-nav-link" (click)="goToProducts($event)">Mangoes</a>
+      <a routerLink="/products" class="mobile-nav-link" (click)="goToProducts($event)">About Us</a>
       <a routerLink="/my-account" class="mobile-nav-link" (click)="toggleMobileMenu()">My Account</a>
     </div>
   </header>
@@ -146,19 +146,19 @@
         *ngFor="let product of products; let i = index"
         [style.animation-delay]="(i * 0.08) + 's'"
         [id]="'product-' + product.id"
+        [routerLink]="['/products', product.id]"
+        role="link"
+        tabindex="0"
       >
         <div class="card-image-wrap">
           <img [src]="product.imageUrl" [alt]="product.productName" class="card-image" loading="lazy">
-          <div class="card-overlay">
-            <button class="quick-view-btn" (click)="buyNow(product)" id="quickView-{{product.id}}">
-              <i class="fas fa-eye"></i> Quick View
-            </button>
-          </div>
           <span class="card-badge" *ngIf="product.rating && product.rating >= 4.5">
             <i class="fas fa-star"></i> Top Rated
           </span>
           <!-- Wishlist Heart -->
-          <button class="card-wishlist-btn" aria-label="Add to wishlist" id="wishlist-{{product.id}}">
+          <button class="card-wishlist-btn" aria-label="Add to wishlist"
+                  id="wishlist-{{product.id}}"
+                  (click)="$event.stopPropagation()">
             <i class="far fa-heart"></i>
           </button>
         </div>
@@ -179,7 +179,9 @@
             <i class="fas fa-box-open"></i>
             <span>{{ getAvailableQty(product) }} units available</span>
           </div>
-          <button class="buy-btn" (click)="buyNow(product)" id="buyBtn-{{product.id}}">
+          <button class="buy-btn"
+                  (click)="$event.stopPropagation(); buyNow(product)"
+                  id="buyBtn-{{product.id}}">
             <i class="fas fa-shopping-bag"></i> Buy Now
           </button>
         </div>
@@ -279,9 +281,9 @@
       </div>
       <div class="footer-links-group">
         <h4>Quick Links</h4>
-        <a routerLink="/products">Buy Fruits</a>
+        <a routerLink="/products" (click)="goToProducts($event)">Buy Fruits</a>
         <a routerLink="/my-account">My Account</a>
-        <a routerLink="/products">About Us</a>
+        <a routerLink="/products" (click)="goToProducts($event)">About Us</a>
       </div>
       <div class="footer-links-group">
         <h4>Support</h4>

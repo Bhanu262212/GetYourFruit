@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Product } from '../models/product';
 import { environment } from '../../environments/environment';
 
@@ -15,6 +16,13 @@ export class ProductService {
 
   getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);
+  }
+
+  // Backend has no GET /products/:id endpoint yet — resolve from the full list.
+  getProductById(id: string): Observable<Product | undefined> {
+    return this.http.get<Product[]>(this.apiUrl).pipe(
+      map(products => products.find(p => p.id === id))
+    );
   }
 
   // Search products using the server's /search?q= endpoint

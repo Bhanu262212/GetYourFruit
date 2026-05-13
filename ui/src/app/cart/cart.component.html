@@ -1,91 +1,125 @@
-<div class="layout">
+<div class="cart-page">
 
-  <!-- ===== LEFT SIDEBAR ===== -->
-  <div class="sidebar">
+  <!-- Header -->
+  <header class="cart-page-header">
+    <div class="cart-page-header-inner">
+      <a routerLink="/products" class="cart-brand">
+        <span class="brand-name">Southern</span>
+        <span class="brand-sub">GROVES</span>
+      </a>
+      <a routerLink="/products" class="cart-back-link">
+        <i class="fas fa-arrow-left"></i>
+        <span>Continue Shopping</span>
+      </a>
+    </div>
+  </header>
 
-    <div class="logo">
-      𝓖𝓮𝓽 𝓨𝓸𝓾𝓻 𝓕𝓻𝓾𝓲𝓽
+  <main class="cart-page-main">
+    <h1 class="cart-page-title">Your Shopping Cart</h1>
+
+    <!-- Empty state -->
+    <div *ngIf="cartItems.length === 0" class="cart-empty">
+      <div class="cart-empty-icon">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven't added anything yet. Browse our fresh picks!</p>
+      <button class="cart-btn cart-btn-primary" (click)="goHome()">
+        <i class="fas fa-leaf"></i> Start Shopping
+      </button>
     </div>
 
-    <ul class="menu">
-      <li class="active">🏠 Dashboard</li>
-      <li>📦 Orders</li>
-      <li>🛍 Products</li>
-      <li>👥 Customers</li>
-      <li>📊 Analytics</li>
-      <li>💬 Messages</li>
-      <li>⚙ Settings</li>
-    </ul>
+    <!-- Cart layout -->
+    <div *ngIf="cartItems.length > 0" class="cart-grid">
 
-    <div class="logout">
-      🚪 Logout
-    </div>
-
-  </div>
-
-  <!-- ===== MAIN CONTENT ===== -->
-  <div class="main-content">
-
-    <div class="top-header">
-
-      <div class="header-right">
-
-        <div class="icon-btn" (click)="goHome()" title="Back to Shop">🏠</div>
-
-        <div class="icon-btn">🔔</div>
-
-        <div class="profile-circle">
-          BP
+      <section class="cart-items-section">
+        <div class="cart-items-toolbar">
+          <span class="cart-items-toolbar-count">
+            {{ cartItems.length }} {{ cartItems.length === 1 ? 'item' : 'items' }}
+          </span>
+          <button type="button"
+                  class="cart-clear-btn"
+                  (click)="clearCart()"
+                  aria-label="Clear all items from cart">
+            <i class="fas fa-trash-alt"></i> Clear Cart
+          </button>
         </div>
+        <header class="cart-items-header">
+          <span>Item</span>
+          <span class="hide-mobile">Quantity</span>
+          <span class="hide-mobile">Subtotal</span>
+          <span></span>
+        </header>
 
-      </div>
-    </div>
-
-    <div class="cart-wrapper">
-      <h1 class="cart-title">Shopping Cart</h1>
-
-      <div *ngIf="cartItems.length === 0" class="empty-cart">
-        <p>Your cart is empty</p>
-        <button class="btn-continue" (click)="goHome()">Continue Shopping</button>
-      </div>
-
-      <div *ngIf="cartItems.length > 0" class="cart-content">
-        <div class="cart-items-list">
-          <div *ngFor="let item of cartItems; let i = index" class="cart-item">
-            <img [src]="item.imageUrl" [alt]="item.productName" class="item-image">
-            <div class="item-details">
+        <article class="cart-row" *ngFor="let item of cartItems">
+          <div class="cart-row-product">
+            <img [src]="item.imageUrl || 'assets/placeholder.png'" [alt]="item.productName" class="cart-row-image" />
+            <div class="cart-row-info">
               <h3>{{ item.productName }}</h3>
-              <p class="item-price">Price: ${{ item.price }}</p>
-              <p class="item-qty">Quantity: {{ item.quantity }}</p>
-            </div>
-            <div class="item-total">
-              <p class="total-price">${{ (item.price * item.quantity).toFixed(2) }}</p>
-              <button class="btn-remove" (click)="removeItem(i)">Remove</button>
+              <span class="cart-row-price">₹{{ item.price | number:'1.0-0' }}</span>
             </div>
           </div>
+
+          <div class="cart-qty">
+            <button type="button" (click)="decrement(item)"
+                    [disabled]="item.quantity <= 1"
+                    aria-label="Decrease quantity">
+              <i class="fas fa-minus"></i>
+            </button>
+            <span>{{ item.quantity }}</span>
+            <button type="button" (click)="increment(item)"
+                    aria-label="Increase quantity">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+
+          <div class="cart-row-subtotal">
+            ₹{{ (item.price * item.quantity) | number:'1.0-0' }}
+          </div>
+
+          <button type="button" class="cart-row-remove"
+                  (click)="removeItem(item.productId)"
+                  aria-label="Remove item">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </article>
+      </section>
+
+      <aside class="cart-summary">
+        <h2>Order Summary</h2>
+        <div class="cart-summary-row">
+          <span>Subtotal</span>
+          <span>₹{{ getSubtotal() | number:'1.0-0' }}</span>
+        </div>
+        <div class="cart-summary-row">
+          <span>Shipping</span>
+          <span>{{ getShipping() === 0 ? 'Free' : '₹' + (getShipping() | number:'1.0-0') }}</span>
+        </div>
+        <div class="cart-summary-row cart-summary-total">
+          <span>Total</span>
+          <span>₹{{ getTotal() | number:'1.0-0' }}</span>
         </div>
 
-        <div class="cart-summary">
-          <h2>Order Summary</h2>
-          <div class="summary-row">
-            <span>Subtotal:</span>
-            <span>${{ getTotalPrice().toFixed(2) }}</span>
-          </div>
-          <div class="summary-row">
-            <span>Shipping:</span>
-            <span>$0.00</span>
-          </div>
-          <div class="summary-row total">
-            <span>Total:</span>
-            <span>${{ getTotalPrice().toFixed(2) }}</span>
-          </div>
-          <button class="btn-checkout">Proceed to Checkout</button>
-          <button class="btn-continue" (click)="goHome()">Continue Shopping</button>
-        </div>
-      </div>
+        <p class="cart-shipping-note" *ngIf="getSubtotal() < 999 && getSubtotal() > 0">
+          <i class="fas fa-truck"></i>
+          Add ₹{{ (999 - getSubtotal()) | number:'1.0-0' }} more for free shipping.
+        </p>
+
+        <button type="button" class="cart-btn cart-btn-primary cart-checkout-btn"
+                (click)="checkout()">
+          <i class="fas fa-lock"></i> Proceed to Checkout
+        </button>
+
+        <button type="button" class="cart-btn cart-btn-secondary"
+                (click)="goHome()">
+          Continue Shopping
+        </button>
+
+        <p class="cart-login-note" *ngIf="!isLoggedIn">
+          <i class="fas fa-info-circle"></i>
+          <a routerLink="/login">Log in</a> to save your cart and check out faster.
+        </p>
+      </aside>
     </div>
-
-  </div>
-
+  </main>
 </div>
-

@@ -496,12 +496,18 @@
   overflow: hidden;
   transition: all var(--sg-transition-medium);
   animation: fadeInUp 0.5s ease-out both;
-  cursor: default;
+  cursor: pointer;
+  outline: none;
 }
 
-.product-card:hover {
+.product-card:hover,
+.product-card:focus-visible {
   transform: translateY(-6px);
   box-shadow: var(--sg-shadow-lg);
+}
+
+.product-card:focus-visible {
+  box-shadow: 0 0 0 2px var(--sg-gold), var(--sg-shadow-lg);
 }
 
 .card-image-wrap {
@@ -520,44 +526,6 @@
 
 .product-card:hover .card-image {
   transform: scale(1.05);
-}
-
-.card-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(73, 29, 11, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity var(--sg-transition-medium);
-}
-
-.product-card:hover .card-overlay {
-  opacity: 1;
-}
-
-.quick-view-btn {
-  background: var(--sg-white);
-  color: var(--sg-text-primary);
-  border: none;
-  padding: 12px 28px;
-  border-radius: var(--sg-radius-sm);
-  font-family: var(--sg-font-body);
-  font-size: 0.88rem;
-  font-weight: 500;
-  cursor: pointer;
-  transform: translateY(10px);
-  transition: all var(--sg-transition-fast);
-}
-
-.product-card:hover .quick-view-btn {
-  transform: translateY(0);
-}
-
-.quick-view-btn:hover {
-  background: var(--sg-gold);
-  color: white;
 }
 
 .card-badge {
@@ -1229,7 +1197,7 @@
   .trust-inner {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .trust-badge:nth-child(2) {
     border-right: none;
   }
@@ -1239,140 +1207,463 @@
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   TABLET & MOBILE  (≤ 768px)
+   ═══════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
+  /* Compact sticky header */
+  .header-inner {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .brand-name {
+    font-size: 1.35rem;
+  }
+
+  .brand-sub {
+    font-size: 0.55rem;
+    letter-spacing: 4px;
+  }
+
   .main-nav {
     display: none;
   }
-  
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .action-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+    border-color: transparent; /* cleaner look on mobile */
+  }
+
+  .action-btn:active {
+    background: var(--sg-cream-warm);
+  }
+
+  /* Hide wishlist in header on mobile to declutter; users use card-level heart */
+  #wishlistBtn {
+    display: none;
+  }
+
   .mobile-menu-btn {
     display: flex;
   }
-  
+
   .mobile-nav {
     display: flex;
   }
-  
+
+  /* HERO — mobile poster style */
   .hero {
-    min-height: 70vh;
-    margin-top: 70px;
+    min-height: 78vh;
+    margin-top: 64px;
   }
-  
+
   .hero-content {
-    padding: 40px 24px;
+    padding: 56px 20px 64px;
+    text-align: center;
+    margin: 0 auto;
   }
-  
+
+  .hero-badge {
+    margin-bottom: 18px;
+    font-size: 0.78rem;
+    padding: 6px 16px;
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: clamp(2rem, 8vw, 2.6rem);
+    margin-bottom: 14px;
+  }
+
+  /* Avoid awkward forced line breaks on phones */
+  .hero-title br {
+    display: none;
   }
 
   .hero-description {
     font-size: 0.95rem;
+    line-height: 1.65;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 28px;
   }
 
   .hero-actions {
     flex-direction: column;
+    align-items: stretch;
+    max-width: 320px;
+    margin: 0 auto;
+    gap: 12px;
   }
 
   .hero-cta {
     text-align: center;
     justify-content: center;
+    width: 100%;
+    padding: 14px 28px;
   }
-  
+
   .hide-mobile {
     display: none;
   }
 
-  .trust-inner {
-    grid-template-columns: 1fr 1fr;
+  /* TRUST STRIP — horizontal snap-scroll feels great on touch */
+  .trust-strip {
+    overflow: hidden;
   }
-  
+
+  .trust-inner {
+    display: flex;
+    grid-template-columns: none;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 14px 16px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .trust-inner::-webkit-scrollbar {
+    display: none;
+  }
+
   .trust-badge {
-    padding: 16px 12px;
+    flex: 0 0 auto;
+    min-width: 200px;
+    border-right: none;
+    border: 1px solid var(--sg-border-light);
+    border-radius: var(--sg-radius-md);
+    padding: 12px 14px;
+    background: var(--sg-cream);
+    scroll-snap-align: start;
   }
 
   .trust-badge:nth-child(even) {
     border-right: none;
   }
 
+  /* SHOP / PRODUCT GRID */
   .shop-section {
-    padding: 48px 16px;
+    padding: 40px 14px 56px;
   }
-  
+
+  .section-header {
+    margin-bottom: 28px;
+  }
+
+  .section-tag {
+    letter-spacing: 2px;
+  }
+
+  .search-container {
+    margin-bottom: 28px;
+  }
+
+  .search-bar {
+    padding: 4px 18px;
+  }
+
+  .search-bar input {
+    padding: 12px 0;
+    font-size: 16px; /* prevents iOS zoom */
+  }
+
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 14px;
   }
 
   .card-body {
-    padding: 14px;
+    padding: 12px 12px 14px;
   }
 
   .card-title {
     font-size: 0.88rem;
+    line-height: 1.35;
+    /* Clamp to two lines so heights align */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.4em;
   }
 
   .card-price {
     font-size: 1rem;
+    margin-bottom: 4px;
   }
-  
+
+  .card-rating {
+    margin-bottom: 10px;
+  }
+
+  .qty-available {
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+    padding: 2px 0;
+  }
+
   .buy-btn {
-    padding: 8px 20px;
-    font-size: 0.85rem;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    border-radius: var(--sg-radius-md);
   }
-  
+
+  /* FOOTER */
+  .site-footer {
+    padding-top: 40px;
+    /* Leave room for the bottom-fixed WhatsApp FAB */
+    padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+  }
+
   .footer-inner {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 28px;
+    text-align: center;
+    padding-bottom: 28px;
   }
 
+  .footer-social {
+    justify-content: center;
+  }
+
+  .footer-links-group {
+    align-items: center;
+  }
+
+  /* WHATSAPP FAB — keep above iOS home indicator */
   .whatsapp-fab {
-    bottom: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    font-size: 1.4rem;
+    bottom: calc(env(safe-area-inset-bottom) + 20px);
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    font-size: 1.5rem;
   }
 
+  /* CART DRAWER — bottom-sheet style on mobile feels native */
   .cart-drawer {
+    top: auto;
+    right: 0;
+    left: 0;
+    bottom: 0;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
+    height: 92vh;
+    max-height: 92dvh;
+    border-radius: 18px 18px 0 0;
+    transform: translateY(100%);
+    box-shadow: 0 -8px 32px rgba(73, 29, 11, 0.16);
+  }
+
+  .cart-drawer.open {
+    transform: translateY(0);
+  }
+
+  /* Optional grab handle to hint that it's swipe-able */
+  .cart-drawer::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 42px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(73, 29, 11, 0.18);
+  }
+
+  .drawer-header {
+    padding: 22px 18px 14px;
+  }
+
+  .drawer-header h2 {
+    font-size: 1.08rem;
+  }
+
+  .drawer-body {
+    padding-bottom: 8px;
+  }
+
+  .drawer-item {
+    padding: 14px 18px;
+  }
+
+  .drawer-footer {
+    padding: 16px 18px calc(env(safe-area-inset-bottom) + 18px);
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   SMALL MOBILE  (≤ 480px)
+   ═══════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
   .header-inner {
-    padding: 12px 16px;
+    padding: 10px 14px;
   }
-  
+
   .brand-name {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
   }
-  
+
+  /* Slim down header actions to fit comfortably */
+  .action-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cart-count {
+    font-size: 0.6rem;
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+
   .hero {
-    min-height: 60vh;
+    min-height: 72vh;
+    margin-top: 60px;
   }
-  
+
+  .hero-content {
+    padding: 44px 16px 52px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.85rem, 9vw, 2.2rem);
+  }
+
+  .hero-description {
+    font-size: 0.92rem;
+    margin-bottom: 24px;
+  }
+
+  .section-title {
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
+  }
+
+  .section-desc {
+    font-size: 0.92rem;
+  }
+
   .product-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
-  
+
   .card-body {
-    padding: 12px;
+    padding: 10px 10px 12px;
   }
-  
-  .buy-btn {
-    padding: 8px 16px;
+
+  .card-title {
     font-size: 0.82rem;
+  }
+
+  .card-price {
+    font-size: 0.95rem;
+  }
+
+  .buy-btn {
+    padding: 9px 10px;
+    font-size: 0.78rem;
   }
 
   .card-wishlist-btn {
     width: 30px;
     height: 30px;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
+    top: 8px;
+    right: 8px;
+  }
+
+  .card-badge {
+    top: 8px;
+    left: 8px;
+    font-size: 0.65rem;
+    padding: 3px 8px;
   }
 
   .qty-available {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
+  }
+
+  .qty-available i {
+    font-size: 0.68rem;
+  }
+
+  /* Mobile nav opens beneath the compact header */
+  .mobile-nav.open {
+    padding: 8px 16px 16px;
+    max-height: 320px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXTRA SMALL  (≤ 360px) — narrow phones, single-column friendly
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 360px) {
+  .header-actions {
+    gap: 2px;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .product-grid {
+    gap: 8px;
+  }
+
+  .buy-btn i {
+    display: none; /* save horizontal room */
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LANDSCAPE on short phones — tighten hero vertical space
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    min-height: 100vh;
+  }
+
+  .hero-content {
+    padding: 32px 24px;
+  }
+
+  .hero-title {
+    font-size: 1.7rem;
+    margin-bottom: 10px;
+  }
+
+  .hero-description {
+    margin-bottom: 18px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACCESSIBILITY — respect user's motion preference
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .hero-content,
+  .hero-badge,
+  .hero-title,
+  .hero-description,
+  .hero-actions,
+  .drawer-item,
+  .section-header {
+    animation: none !important;
+  }
+
+  .product-card:hover {
+    transform: none;
   }
 }

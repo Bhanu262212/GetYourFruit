@@ -4,7 +4,7 @@ import { Product } from '../models/product';
 import { CartService, EnrichedCartItem } from '../services/cart.service';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -30,7 +30,8 @@ export class ProductListingComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +57,9 @@ export class ProductListingComponent implements OnInit, OnDestroy {
     this.cartCountSub?.unsubscribe();
     this.cartItemsSub?.unsubscribe();
     this.authSub?.unsubscribe();
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
+    }
   }
 
   loadProducts(): void {
@@ -93,18 +97,15 @@ export class ProductListingComponent implements OnInit, OnDestroy {
   }
 
   buyNow(product: Product): void {
+    // Cart is server-backed — require login.
     if (!this.isLoggedIn) {
-      // If not logged in, prompt to login
-      // For now, still try (cart service handles null userId gracefully)
+      this.router.navigate(['/login']);
+      return;
     }
+    // "Buy Now" → add to cart and proceed to the cart / checkout page.
     this.cartService.addToCart(product).subscribe({
-      next: () => {
-        this.isCartOpen = true;
-      },
-      error: () => {
-        // Error already handled in service
-        this.isCartOpen = true;
-      }
+      next: () => this.router.navigate(['/cart']),
+      error: () => this.router.navigate(['/cart'])
     });
   }
 
@@ -114,10 +115,22 @@ export class ProductListingComponent implements OnInit, OnDestroy {
       // Refresh cart data when opening drawer
       this.cartService.refreshCart();
     }
+    this.updateBodyScrollLock();
   }
 
   closeCart(): void {
     this.isCartOpen = false;
+    this.updateBodyScrollLock();
+  }
+
+  /**
+   * Prevent background scroll while a mobile overlay (cart drawer / mobile menu)
+   * is open — important for native-feeling mobile UX.
+   */
+  private updateBodyScrollLock(): void {
+    if (typeof document === 'undefined') return;
+    const shouldLock = this.isCartOpen || this.isMobileMenuOpen;
+    document.body.style.overflow = shouldLock ? 'hidden' : '';
   }
 
   removeCartItem(productId: string): void {
@@ -140,5 +153,33 @@ export class ProductListingComponent implements OnInit, OnDestroy {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.updateBodyScrollLock();
+  }
+
+  /**
+   * Handler for the "Buy Fruits" nav links.
+   *  - If we're already on /products, smoothly scroll to the shop section
+   *    (RouterLink alone is a no-op when navigating to the current URL).
+   *  - Otherwise, route to /products as normal.
+   */
+  goToProducts(event?: Event): void {
+    if (this.isMobileMenuOpen) {
+      this.toggleMobileMenu();
+    }
+
+    if (this.router.url === '/products' || this.router.url.startsWith('/products?')) {
+      event?.preventDefault();
+      if (typeof document !== 'undefined') {
+        const target = document.getElementById('shopSection');
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+      return;
+    }
+
+    this.router.navigate(['/products']);
   }
 }
