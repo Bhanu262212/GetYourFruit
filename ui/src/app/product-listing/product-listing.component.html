@@ -16,6 +16,9 @@
         </a>
         <a routerLink="/products" class="nav-link" id="navMangoes" (click)="goToProducts($event)">Mangoes</a>
         <a routerLink="/products" class="nav-link" id="navAbout" (click)="goToProducts($event)">About Us</a>
+        <a *ngIf="isAdmin" routerLink="/manage-admin" class="nav-link nav-link-admin" id="navManage">
+          <i class="fas fa-user-shield"></i> Manage
+        </a>
       </nav>
 
       <!-- User Actions -->
@@ -42,6 +45,12 @@
       <a routerLink="/products" class="mobile-nav-link" (click)="goToProducts($event)">Mangoes</a>
       <a routerLink="/products" class="mobile-nav-link" (click)="goToProducts($event)">About Us</a>
       <a routerLink="/my-account" class="mobile-nav-link" (click)="toggleMobileMenu()">My Account</a>
+      <a *ngIf="isAdmin"
+         routerLink="/manage-admin"
+         class="mobile-nav-link mobile-nav-link-admin"
+         (click)="toggleMobileMenu()">
+        <i class="fas fa-user-shield"></i> Manage
+      </a>
     </div>
   </header>
 
@@ -164,26 +173,88 @@
         </div>
         <div class="card-body">
           <h3 class="card-title">{{ product.productName }}</h3>
-          <p class="card-price" *ngIf="product.price">
-            <span class="price-currency">₹</span>{{ product.price | number:'1.0-0' }}
-          </p>
-          <div class="card-rating" *ngIf="product.rating">
-            <div class="stars">
-              <i class="fas fa-star" *ngFor="let s of [1,2,3,4,5]"
-                 [class.filled]="s <= (product.rating || 0)"></i>
+
+          <!-- Price + rating side-by-side -->
+          <div class="card-price-row">
+            <p class="card-price" *ngIf="product.price">
+              <span class="price-currency">₹</span>{{ product.price | number:'1.0-0' }}
+              <span class="price-unit">/ {{ getUnitLabel(product) }}</span>
+            </p>
+            <span class="card-rating-pill" *ngIf="getAverageRating(product) > 0">
+              <i class="fas fa-star"></i>{{ getAverageRating(product) | number:'1.1-1' }}
+            </span>
+          </div>
+
+          <!-- Available pack sizes (read-only summary, single-line compact) -->
+          <div class="card-available-sizes" *ngIf="getAvailableQuantities(product).length > 0">
+            <span class="card-available-label">Available</span>
+            <span class="card-available-list" [title]="getPackSizesLabel(product)">
+              {{ getPackSizesLabel(product) }}
+            </span>
+          </div>
+
+          <!-- Pack size + qty selectors (compact) -->
+          <div class="card-selectors"
+               (click)="$event.stopPropagation()"
+               (keydown)="$event.stopPropagation()">
+            <div class="card-selector" *ngIf="getAvailableQuantities(product).length > 0">
+              <div class="card-select-wrap">
+                <select [id]="'pack-' + product.id"
+                        class="card-select"
+                        [ngModel]="getSelectedPackSize(product)"
+                        (ngModelChange)="setSelectedPackSize(product, $event)"
+                        aria-label="Pack size">
+                  <option *ngFor="let q of getAvailableQuantities(product)" [ngValue]="q">
+                    {{ q }} {{ getUnitLabel(product) }}
+                  </option>
+                </select>
+                <i class="fas fa-chevron-down card-select-caret"></i>
+              </div>
             </div>
-            <span class="review-count" *ngIf="product.reviewCount">({{ product.reviewCount }})</span>
+            <div class="card-qty">
+              <button type="button"
+                      class="card-qty-btn"
+                      (click)="decrementPacks(product)"
+                      [disabled]="getPacksCount(product) <= 1"
+                      aria-label="Decrease quantity">
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="card-qty-value">{{ getPacksCount(product) }}</span>
+              <button type="button"
+                      class="card-qty-btn"
+                      (click)="incrementPacks(product)"
+                      [disabled]="getPacksCount(product) >= MAX_PACKS"
+                      aria-label="Increase quantity">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
           </div>
-          <!-- Quantity Available -->
-          <div class="qty-available">
-            <i class="fas fa-box-open"></i>
-            <span>{{ getAvailableQty(product) }} units available</span>
+
+          <!-- CTAs pinned to the bottom for uniform tile heights -->
+          <div class="card-foot">
+            <div class="card-total" *ngIf="product.price">
+              <span class="card-total-value">
+                ₹{{ getTotalPrice(product) | number:'1.0-0' }}
+              </span>
+              <span class="card-total-meta">
+                {{ getTotalUnits(product) }} {{ getUnitLabel(product) }}
+              </span>
+            </div>
+            <div class="card-cta-row">
+              <button class="card-add-btn"
+                      type="button"
+                      (click)="$event.stopPropagation(); addToCart(product)"
+                      aria-label="Add to cart">
+                <i class="fas fa-shopping-bag"></i>
+              </button>
+              <button class="buy-btn"
+                      type="button"
+                      (click)="$event.stopPropagation(); buyNow(product)"
+                      id="buyBtn-{{product.id}}">
+                <i class="fas fa-bolt"></i> Buy Now
+              </button>
+            </div>
           </div>
-          <button class="buy-btn"
-                  (click)="$event.stopPropagation(); buyNow(product)"
-                  id="buyBtn-{{product.id}}">
-            <i class="fas fa-shopping-bag"></i> Buy Now
-          </button>
         </div>
       </div>
     </div>

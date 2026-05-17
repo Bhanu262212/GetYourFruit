@@ -4,17 +4,27 @@ import { Product } from '../models/product';
 import { CartService, EnrichedCartItem } from '../services/cart.service';
 import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+
+/** Per-tile purchase selection — pack size + how many of that pack. */
+interface TileSelection {
+  packSize: number;
+  packs: number;
+}
 
 @Component({
   selector: 'app-product-listing',
   templateUrl: './product-listing.component.html',
   styleUrls: ['./product-listing.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule]
+  imports: [CommonModule, FormsModule, RouterModule]
 })
 export class ProductListingComponent implements OnInit, OnDestroy {
+  /** Hard cap on packs per add-to-cart action. */
+  readonly MAX_PACKS = 10;
+
   products: Product[] = [];
   cartItemCount: number = 0;
   isLoading: boolean = true;
@@ -22,6 +32,10 @@ export class ProductListingComponent implements OnInit, OnDestroy {
   isCartOpen: boolean = false;
   cartItems: EnrichedCartItem[] = [];
   isLoggedIn: boolean = false;
+  /** Drives role-based menu items (e.g. the "Manage" link). */
+  isAdmin: boolean = false;
+  /** Selection state keyed by product.id so each tile remembers its own choice. */
+  private selections = new Map<string, TileSelection>();
   private searchTimeout: any;
   private cartCountSub!: Subscription;
   private cartItemsSub!: Subscription;
@@ -37,9 +51,11 @@ export class ProductListingComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadProducts();
 
-    // Subscribe to auth state
-    this.authSub = this.authService.isAuthenticated$.subscribe(isAuth => {
-      this.isLoggedIn = isAuth;
+    // Subscribe to auth state — track both login + role so the nav can
+    // expose the admin-only "Manage" entry to admins only.
+    this.authSub = this.authService.currentUser$.subscribe(user => {
+      this.isLoggedIn = !!user;
+      this.isAdmin = (user?.role || '').toLowerCase() === 'admin';
     });
 
     // Subscribe to cart count (reactive)
@@ -67,6 +83,7 @@ export class ProductListingComponent implements OnInit, OnDestroy {
     this.productService.getAllProducts().subscribe({
       next: (products) => {
         this.products = products;
+        this.seedSelections(products);
         this.isLoading = false;
       },
       error: () => {
@@ -84,6 +101,7 @@ export class ProductListingComponent implements OnInit, OnDestroy {
         this.productService.searchProducts(query).subscribe({
           next: (products) => {
             this.products = products;
+            this.seedSelections(products);
             this.isLoading = false;
           },
           error: () => {
@@ -96,17 +114,81 @@ export class ProductListingComponent implements OnInit, OnDestroy {
     }, 400);
   }
 
+  /** Make sure every product has a default tile selection. */
+  private seedSelections(products: Product[]): void {
+    products.forEach(p => {
+      if (this.selections.has(p.id)) return;
+      const qtys = p.availableQuantities;
+      this.selections.set(p.id, {
+        packSize: qtys && qtys.length ? qtys[0] : 1,
+        packs: 1
+      });
+    });
+  }
+
+  private ensureSelection(product: Product): TileSelection {
+    let sel = this.selections.get(product.id);
+    if (!sel) {
+      const qtys = product.availableQuantities;
+      sel = { packSize: qtys && qtys.length ? qtys[0] : 1, packs: 1 };
+      this.selections.set(product.id, sel);
+    }
+    return sel;
+  }
+
+  getSelectedPackSize(product: Product): number {
+    return this.ensureSelection(product).packSize;
+  }
+
+  setSelectedPackSize(product: Product, value: number | string): void {
+    const sel = this.ensureSelection(product);
+    const parsed = Number(value);
+    if (!isNaN(parsed) && parsed > 0) sel.packSize = parsed;
+  }
+
+  getPacksCount(product: Product): number {
+    return this.ensureSelection(product).packs;
+  }
+
+  incrementPacks(product: Product): void {
+    const sel = this.ensureSelection(product);
+    if (sel.packs < this.MAX_PACKS) sel.packs++;
+  }
+
+  decrementPacks(product: Product): void {
+    const sel = this.ensureSelection(product);
+    if (sel.packs > 1) sel.packs--;
+  }
+
+  /** Total units (KG / gm) being purchased = packSize × packs. */
+  getTotalUnits(product: Product): number {
+    const sel = this.ensureSelection(product);
+    return Math.max(1, sel.packSize) * Math.max(1, sel.packs);
+  }
+
+  getTotalPrice(product: Product): number {
+    return (product.price || 0) * this.getTotalUnits(product);
+  }
+
   buyNow(product: Product): void {
-    // Cart is server-backed — require login.
     if (!this.isLoggedIn) {
       this.router.navigate(['/login']);
       return;
     }
-    // "Buy Now" → add to cart and proceed to the cart / checkout page.
-    this.cartService.addToCart(product).subscribe({
+    const totalUnits = this.getTotalUnits(product);
+    this.cartService.addToCart(product, totalUnits).subscribe({
       next: () => this.router.navigate(['/cart']),
       error: () => this.router.navigate(['/cart'])
     });
+  }
+
+  addToCart(product: Product): void {
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    const totalUnits = this.getTotalUnits(product);
+    this.cartService.addToCart(product, totalUnits).subscribe();
   }
 
   toggleCart(): void {
@@ -145,10 +227,31 @@ export class ProductListingComponent implements OnInit, OnDestroy {
     return this.cartItems.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-  // Placeholder: quantity available — to be integrated with backend API later
-  getAvailableQty(product: Product): number {
-    const hash = product.id ? product.id.charCodeAt(0) % 20 + 5 : 12;
-    return hash;
+  /** Pack sizes returned by the backend, or an empty list. */
+  getAvailableQuantities(product: Product): number[] {
+    return product.availableQuantities ?? [];
+  }
+
+  /** "KG" / "gm" — pulled straight from the backend `weighingScale`. */
+  getUnitLabel(product: Product): string {
+    const raw = (product.weighingScale || 'kg').trim();
+    const lower = raw.toLowerCase();
+    if (lower === 'kg') return 'KG';
+    if (lower === 'gm' || lower === 'g' || lower === 'gram' || lower === 'grams') return 'gm';
+    return raw;
+  }
+
+  /** A render-friendly summary like "0.5 KG, 1 KG, 2 KG". */
+  getPackSizesLabel(product: Product): string {
+    const qtys = this.getAvailableQuantities(product);
+    if (!qtys.length) return '';
+    const unit = this.getUnitLabel(product);
+    return qtys.map(q => `${q} ${unit}`).join(', ');
+  }
+
+  /** Best available average rating (cached on Product or fallback to legacy `rating`). */
+  getAverageRating(product: Product): number {
+    return product.avgUserRating ?? product.rating ?? 0;
   }
 
   toggleMobileMenu(): void {

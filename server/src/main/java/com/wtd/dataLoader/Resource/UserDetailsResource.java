@@ -62,7 +62,19 @@ public class UserDetailsResource {
         if (existingUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-        existingUser.setRole(user.getRole());
+
+        // Patch-style update — apply every field the admin actually supplied
+        // and leave the rest (password, etc.) intact.
+        if (user.getUsername() != null) existingUser.setUsername(user.getUsername());
+        if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
+        if (user.getPhoneNumber() != null) existingUser.setPhoneNumber(user.getPhoneNumber());
+        if (user.getDefaultShippingAddress() != null) existingUser.setDefaultShippingAddress(user.getDefaultShippingAddress());
+        if (user.getCity() != null) existingUser.setCity(user.getCity());
+        if (user.getState() != null) existingUser.setState(user.getState());
+        if (user.getZipCode() != null) existingUser.setZipCode(user.getZipCode());
+        if (user.getCountry() != null) existingUser.setCountry(user.getCountry());
+        if (user.getRole() != null) existingUser.setRole(user.getRole());
+
         return ResponseEntity.ok(userDetailsService.updateUser(existingUser));
     }
 

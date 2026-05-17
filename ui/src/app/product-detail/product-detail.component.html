@@ -79,14 +79,15 @@
              [class.filled]="s <= getRating()"></i>
         </div>
         <span class="pd-rating-value">{{ getRating() | number:'1.1-1' }}</span>
-        <span class="pd-review-count" *ngIf="product.reviewCount">
-          ({{ product.reviewCount }} reviews)
+        <span class="pd-review-count" *ngIf="ratings.length">
+          ({{ ratings.length }} {{ ratings.length === 1 ? 'review' : 'reviews' }})
         </span>
       </div>
 
       <div class="pd-price-row">
         <span class="pd-price">
           <span class="pd-currency">₹</span>{{ product.price | number:'1.0-0' }}
+          <span class="pd-unit">/ {{ unitLabel }}</span>
         </span>
         <span class="pd-stock"
               [class.in-stock]="product.stockStatus !== 'OUT_OF_STOCK'"
@@ -114,22 +115,62 @@
 
       <!-- Quantity & CTAs -->
       <div class="pd-actions">
-        <div class="pd-qty">
-          <button type="button"
-                  class="pd-qty-btn"
-                  (click)="decrementQty()"
-                  [disabled]="quantity <= 1"
-                  aria-label="Decrease quantity">
-            <i class="fas fa-minus"></i>
-          </button>
-          <span class="pd-qty-value">{{ quantity }}</span>
-          <button type="button"
-                  class="pd-qty-btn"
-                  (click)="incrementQty()"
-                  aria-label="Increase quantity">
-            <i class="fas fa-plus"></i>
-          </button>
+        <div class="pd-qty-select" *ngIf="hasQuantityOptions()">
+          <label for="pdQtySelect" class="pd-qty-label">Pack size</label>
+          <div class="pd-select-wrap">
+            <select id="pdQtySelect"
+                    class="pd-select"
+                    [ngModel]="selectedPackSize"
+                    (ngModelChange)="onPackSizeChange($event)"
+                    aria-label="Select pack size">
+              <option *ngFor="let q of product.availableQuantities" [ngValue]="q">
+                {{ q }} {{ unitLabel }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down pd-select-caret"></i>
+          </div>
         </div>
+        <div class="pd-qty-static" *ngIf="!hasQuantityOptions()">
+          <span class="pd-qty-label">Pack size</span>
+          <span class="pd-qty-value-static">{{ selectedPackSize }} {{ unitLabel }}</span>
+        </div>
+
+        <div class="pd-qty-counter">
+          <label class="pd-qty-label">Quantity</label>
+          <div class="pd-qty-row">
+            <div class="pd-qty">
+              <button type="button"
+                      class="pd-qty-btn"
+                      (click)="decrementPacks()"
+                      [disabled]="packsCount <= 1"
+                      aria-label="Decrease quantity">
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="pd-qty-value">{{ packsCount }}</span>
+              <button type="button"
+                      class="pd-qty-btn"
+                      (click)="incrementPacks()"
+                      [attr.aria-disabled]="packsCount >= MAX_PACKS ? 'true' : null"
+                      aria-label="Increase quantity">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <span class="pd-qty-max-warning" *ngIf="maxReached" role="alert">
+              <i class="fas fa-exclamation-circle"></i> Max {{ MAX_PACKS }} per order
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-total-row" *ngIf="product.price">
+        <span class="pd-total-label">Total</span>
+        <span class="pd-total-value">
+          <span class="pd-currency">₹</span>{{ totalPrice | number:'1.0-0' }}
+          <span class="pd-total-meta">for {{ totalUnits }} {{ unitLabel }}</span>
+        </span>
+      </div>
+
+      <div class="pd-actions pd-actions-cta">
 
         <button type="button"
                 class="pd-btn pd-btn-secondary"
@@ -155,19 +196,95 @@
   </section>
 
   <!-- Reviews -->
-  <section class="pd-reviews" *ngIf="!isLoading && product && product.reviews && product.reviews.length > 0">
-    <h2>Customer Reviews</h2>
-    <div class="pd-review-list">
-      <article class="pd-review" *ngFor="let r of product.reviews">
+  <section class="pd-reviews" *ngIf="!isLoading && product">
+    <div class="pd-reviews-header">
+      <h2>Customer Reviews</h2>
+      <div class="pd-reviews-summary" *ngIf="ratings.length > 0">
+        <div class="pd-stars">
+          <i class="fas fa-star"
+             *ngFor="let s of starRange()"
+             [class.filled]="s <= averageRating"></i>
+        </div>
+        <span class="pd-rating-value">{{ averageRating | number:'1.1-1' }}</span>
+        <span class="pd-review-count">
+          based on {{ ratings.length }} {{ ratings.length === 1 ? 'review' : 'reviews' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Write a review -->
+    <div class="pd-review-form" *ngIf="isLoggedIn">
+      <h3>Share your experience</h3>
+      <div class="pd-review-form-stars"
+           (mouseleave)="setHoverRating(0)"
+           role="radiogroup"
+           aria-label="Your rating">
+        <button type="button"
+                class="pd-review-form-star"
+                *ngFor="let s of starRange()"
+                (click)="setNewRating(s)"
+                (mouseenter)="setHoverRating(s)"
+                [attr.aria-label]="s + ' star' + (s === 1 ? '' : 's')"
+                [class.active]="s <= (hoverRatingValue || newRatingValue)">
+          <i class="fas fa-star"></i>
+        </button>
+        <span class="pd-review-form-hint" *ngIf="newRatingValue || hoverRatingValue">
+          {{ (hoverRatingValue || newRatingValue) }} / 5
+        </span>
+      </div>
+      <textarea class="pd-review-form-text"
+                rows="3"
+                placeholder="Tell other customers what you loved (optional)…"
+                [(ngModel)]="newFeedback"
+                maxlength="500"></textarea>
+      <div class="pd-review-form-actions">
+        <button type="button"
+                class="pd-btn pd-btn-primary"
+                (click)="submitRating()"
+                [disabled]="isSubmittingRating || newRatingValue < 1">
+          <i class="fas" [class.fa-spinner]="isSubmittingRating" [class.fa-paper-plane]="!isSubmittingRating"
+             [class.fa-spin]="isSubmittingRating"></i>
+          {{ isSubmittingRating ? 'Submitting…' : 'Submit Rating' }}
+        </button>
+        <span class="pd-review-form-success" *ngIf="ratingSubmitSuccess">
+          <i class="fas fa-check-circle"></i> Thanks! Your rating is live.
+        </span>
+        <span class="pd-review-form-error" *ngIf="ratingSubmitError">
+          <i class="fas fa-exclamation-circle"></i> {{ ratingSubmitError }}
+        </span>
+      </div>
+    </div>
+
+    <div class="pd-review-login-cta" *ngIf="!isLoggedIn">
+      <i class="fas fa-info-circle"></i>
+      <span><a routerLink="/login">Log in</a> to leave a rating &amp; review.</span>
+    </div>
+
+    <div class="pd-review-loading" *ngIf="isLoadingRatings">
+      <div class="pd-spinner pd-spinner-sm"></div>
+      <span>Loading reviews…</span>
+    </div>
+
+    <div class="pd-review-empty" *ngIf="!isLoadingRatings && ratings.length === 0">
+      <i class="far fa-comment-dots"></i>
+      <p>No reviews yet — be the first to share your experience!</p>
+    </div>
+
+    <div class="pd-review-list" *ngIf="ratings.length > 0">
+      <article class="pd-review" *ngFor="let r of ratings; trackBy: trackByRatingId">
         <header>
-          <strong>{{ r.user }}</strong>
+          <strong>{{ r.username || 'Anonymous' }}</strong>
           <div class="pd-stars small">
             <i class="fas fa-star"
                *ngFor="let s of starRange()"
-               [class.filled]="s <= r.rating"></i>
+               [class.filled]="s <= r.userRating"></i>
           </div>
         </header>
-        <p>{{ r.comment }}</p>
+        <p *ngIf="r.feedbackMessage">{{ r.feedbackMessage }}</p>
+        <p class="pd-review-empty-msg" *ngIf="!r.feedbackMessage">
+          <em>No comment provided.</em>
+        </p>
+        <time class="pd-review-date" *ngIf="r.createdAt">{{ r.createdAt | date:'mediumDate' }}</time>
       </article>
     </div>
   </section>
@@ -238,9 +355,9 @@
   <!-- ═══════ MOBILE STICKY ACTION BAR ═══════ -->
   <div class="pd-mobile-bar" *ngIf="!isLoading && product" role="region" aria-label="Product actions">
     <div class="pd-mobile-bar-price">
-      <span class="pd-mobile-bar-label">Price</span>
+      <span class="pd-mobile-bar-label">Total ({{ totalUnits }} {{ unitLabel }})</span>
       <span class="pd-mobile-bar-value">
-        <span class="pd-currency">₹</span>{{ product.price | number:'1.0-0' }}
+        <span class="pd-currency">₹</span>{{ totalPrice | number:'1.0-0' }}
       </span>
     </div>
     <button type="button"

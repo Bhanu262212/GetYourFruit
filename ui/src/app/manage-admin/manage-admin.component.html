@@ -1,0 +1,723 @@
+<div class="admin-page">
+
+  <!-- ═══════ STICKY HEADER (same shape as the listing page) ═══════ -->
+  <header class="site-header" id="adminHeader">
+    <div class="header-inner">
+      <a routerLink="/products" class="brand">
+        <span class="brand-name">Southern</span>
+        <span class="brand-sub">GROVES</span>
+      </a>
+
+      <nav class="main-nav">
+        <a routerLink="/products" class="nav-link">Buy Fruits <i class="fas fa-chevron-down"></i></a>
+        <a routerLink="/products" class="nav-link">Mangoes</a>
+        <a routerLink="/products" class="nav-link">About Us</a>
+        <a *ngIf="isAdmin"
+           routerLink="/manage-admin"
+           class="nav-link nav-link-admin active">
+          <i class="fas fa-user-shield"></i> Manage
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <a routerLink="/my-account" class="action-btn" aria-label="My Account">
+          <i class="fas fa-user"></i>
+        </a>
+        <button class="action-btn" aria-label="Wishlist">
+          <i class="fas fa-heart"></i>
+        </button>
+        <button class="action-btn cart-action" (click)="toggleCart()" aria-label="View Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+        </button>
+        <button class="mobile-menu-btn" (click)="toggleMobileMenu()" aria-label="Menu">
+          <i [class]="isMobileMenuOpen ? 'fas fa-times' : 'fas fa-bars'"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="mobile-nav" [class.open]="isMobileMenuOpen">
+      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">Buy Fruits</a>
+      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">Mangoes</a>
+      <a routerLink="/products" class="mobile-nav-link" (click)="toggleMobileMenu()">About Us</a>
+      <a routerLink="/my-account" class="mobile-nav-link" (click)="toggleMobileMenu()">My Account</a>
+      <a *ngIf="isAdmin"
+         routerLink="/manage-admin"
+         class="mobile-nav-link mobile-nav-link-admin"
+         (click)="toggleMobileMenu()">
+        <i class="fas fa-user-shield"></i> Manage
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════ ADMIN BODY ═══════ -->
+  <main class="admin-main">
+
+    <!-- Breadcrumb / heading -->
+    <div class="admin-crumbs">
+      <a routerLink="/products"><i class="fas fa-home"></i> Home</a>
+      <i class="fas fa-chevron-right sep"></i>
+      <a *ngIf="view !== 'dashboard'" href="javascript:void(0)" (click)="backToDashboard()">Manage</a>
+      <span *ngIf="view === 'dashboard'">Manage</span>
+      <ng-container *ngIf="view !== 'dashboard'">
+        <i class="fas fa-chevron-right sep"></i>
+        <span>
+          {{ view === 'products' ? 'Add Product Details'
+             : view === 'products-list' ? 'View Product Details'
+             : 'Manage User Roles' }}
+        </span>
+      </ng-container>
+    </div>
+
+    <!-- ───────── DASHBOARD (two tiles) ───────── -->
+    <section *ngIf="view === 'dashboard'" class="admin-dashboard">
+      <header class="admin-section-head">
+        <span class="admin-eyebrow">Admin Console</span>
+        <h1>Manage your store</h1>
+        <p>Add new products to the catalogue or update existing user accounts.</p>
+      </header>
+
+      <div class="admin-tiles">
+        <button type="button" class="admin-tile" (click)="openProducts()">
+          <div class="admin-tile-icon admin-tile-icon-gold">
+            <i class="fas fa-box-open"></i>
+          </div>
+          <div class="admin-tile-body">
+            <h2>Add Product Details</h2>
+            <p>Register a new fruit in the catalogue — name, price, image, pack sizes and stock.</p>
+            <span class="admin-tile-cta">
+              Open form <i class="fas fa-arrow-right"></i>
+            </span>
+          </div>
+        </button>
+
+        <button type="button" class="admin-tile" (click)="openProductsList()">
+          <div class="admin-tile-icon admin-tile-icon-green">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <div class="admin-tile-body">
+            <h2>View Product Details</h2>
+            <p>Browse the full catalogue and update any product's price, image, pack sizes or stock.</p>
+            <span class="admin-tile-cta">
+              Open catalogue <i class="fas fa-arrow-right"></i>
+            </span>
+          </div>
+        </button>
+
+        <button type="button" class="admin-tile" (click)="openUsers()">
+          <div class="admin-tile-icon admin-tile-icon-brown">
+            <i class="fas fa-users-cog"></i>
+          </div>
+          <div class="admin-tile-body">
+            <h2>Manage User Roles</h2>
+            <p>Edit any user's profile details and switch their role between User and Admin.</p>
+            <span class="admin-tile-cta">
+              Open list <i class="fas fa-arrow-right"></i>
+            </span>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ───────── ADD PRODUCT ───────── -->
+    <section *ngIf="view === 'products'" class="admin-panel">
+      <header class="admin-panel-head">
+        <button type="button" class="admin-back" (click)="backToDashboard()" aria-label="Back to admin dashboard">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div>
+          <h1>Add Product Details</h1>
+          <p>Fill in the details below and save to publish a new product to the catalogue.</p>
+        </div>
+      </header>
+
+      <form class="admin-form" (ngSubmit)="saveProduct()" #productNg="ngForm" novalidate>
+
+        <div class="admin-form-grid">
+          <label class="admin-field admin-field-span-2">
+            <span class="admin-label">Product name *</span>
+            <input type="text"
+                   class="admin-input"
+                   name="productName"
+                   [(ngModel)]="productForm.productName"
+                   placeholder="e.g. Alphonso Mango"
+                   required />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Price (₹) *</span>
+            <input type="number"
+                   class="admin-input"
+                   name="price"
+                   [(ngModel)]="productForm.price"
+                   min="0"
+                   step="0.01"
+                   placeholder="0.00"
+                   required />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Stock status</span>
+            <select class="admin-input admin-select"
+                    name="stockStatus"
+                    [(ngModel)]="productForm.stockStatus">
+              <option *ngFor="let opt of stockOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </label>
+
+          <label class="admin-field admin-field-span-2">
+            <span class="admin-label">Image URL *</span>
+            <input type="text"
+                   class="admin-input"
+                   name="imageUrl"
+                   [(ngModel)]="productForm.imageUrl"
+                   placeholder="https://… or images/your-image.png"
+                   required />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Weighing scale</span>
+            <select class="admin-input admin-select"
+                    name="weighingScale"
+                    [(ngModel)]="productForm.weighingScale">
+              <option *ngFor="let opt of weighingScaleOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </label>
+
+          <label class="admin-field admin-field-span-2">
+            <span class="admin-label">Available pack sizes</span>
+            <input type="text"
+                   class="admin-input"
+                   name="availableQuantities"
+                   [(ngModel)]="productForm.availableQuantities"
+                   placeholder="comma-separated, e.g. 0.5, 1, 2" />
+            <small class="admin-hint">Numbers only, separated by commas or spaces.</small>
+          </label>
+        </div>
+
+        <div class="admin-form-actions">
+          <button type="button" class="admin-btn admin-btn-ghost" (click)="resetProductForm()">
+            Reset
+          </button>
+          <button type="submit"
+                  class="admin-btn admin-btn-primary"
+                  [disabled]="isSavingProduct">
+            <i class="fas"
+               [class.fa-spinner]="isSavingProduct"
+               [class.fa-spin]="isSavingProduct"
+               [class.fa-check]="!isSavingProduct"></i>
+            {{ isSavingProduct ? 'Saving…' : 'Save Product' }}
+          </button>
+        </div>
+
+        <p class="admin-alert admin-alert-success" *ngIf="productSaveSuccess">
+          <i class="fas fa-check-circle"></i> {{ productSaveSuccess }}
+        </p>
+        <p class="admin-alert admin-alert-error" *ngIf="productSaveError">
+          <i class="fas fa-exclamation-circle"></i> {{ productSaveError }}
+        </p>
+      </form>
+    </section>
+
+    <!-- ───────── VIEW / UPDATE PRODUCTS ───────── -->
+    <section *ngIf="view === 'products-list'" class="admin-panel">
+      <header class="admin-panel-head">
+        <button type="button" class="admin-back" (click)="backToDashboard()" aria-label="Back to admin dashboard">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div>
+          <h1>View Product Details</h1>
+          <p>Pick any product to update its name, price, image, stock, weighing scale or pack sizes.</p>
+        </div>
+        <button type="button"
+                class="admin-btn admin-btn-ghost admin-refresh"
+                (click)="loadProducts()"
+                [disabled]="isLoadingProducts">
+          <i class="fas fa-sync" [class.fa-spin]="isLoadingProducts"></i> Refresh
+        </button>
+      </header>
+
+      <p class="admin-alert admin-alert-success" *ngIf="productListSaveSuccess">
+        <i class="fas fa-check-circle"></i> {{ productListSaveSuccess }}
+      </p>
+      <p class="admin-alert admin-alert-error" *ngIf="productListSaveError">
+        <i class="fas fa-exclamation-circle"></i> {{ productListSaveError }}
+      </p>
+
+      <div class="admin-search">
+        <i class="fas fa-search admin-search-icon"></i>
+        <input type="text"
+               class="admin-search-input"
+               [(ngModel)]="productSearchQuery"
+               name="productSearchQuery"
+               placeholder="Search by name, price, stock or scale…"
+               aria-label="Search products" />
+        <button type="button"
+                class="admin-search-clear"
+                *ngIf="productSearchQuery"
+                (click)="clearProductSearch()"
+                aria-label="Clear search">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="admin-loading" *ngIf="isLoadingProducts">
+        <div class="admin-spinner"></div>
+        <p>Loading products…</p>
+      </div>
+
+      <div class="admin-empty" *ngIf="!isLoadingProducts && productList.length === 0">
+        <i class="fas fa-box-open"></i>
+        <p>No products found.</p>
+      </div>
+
+      <div class="admin-empty"
+           *ngIf="!isLoadingProducts && productList.length > 0 && filteredProductList.length === 0">
+        <i class="fas fa-search"></i>
+        <p>No products match "{{ productSearchQuery }}".</p>
+      </div>
+
+      <div class="admin-table-wrap"
+           *ngIf="!isLoadingProducts && filteredProductList.length > 0">
+        <table class="admin-table admin-table-slim">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Scale</th>
+              <th>Pack sizes</th>
+              <th>Stock</th>
+              <th class="admin-col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of filteredProductList">
+              <td class="admin-cell-thumb">
+                <img [src]="product.imageUrl || 'assets/placeholder.png'"
+                     [alt]="product.productName"
+                     class="admin-thumb"
+                     loading="lazy" />
+              </td>
+              <td class="admin-cell-strong">{{ product.productName }}</td>
+              <td>₹{{ product.price | number:'1.0-0' }}</td>
+              <td>{{ product.weighingScale || '—' }}</td>
+              <td>
+                <span *ngIf="(product.availableQuantities || []).length > 0; else dashCell">
+                  {{ (product.availableQuantities || []).join(', ') }}
+                </span>
+                <ng-template #dashCell>—</ng-template>
+              </td>
+              <td>
+                <span class="admin-stock-pill"
+                      [class.admin-stock-in]="(product.stockStatus || '') !== 'Out of Stock'"
+                      [class.admin-stock-out]="(product.stockStatus || '') === 'Out of Stock'">
+                  {{ product.stockStatus || 'In Stock' }}
+                </span>
+              </td>
+              <td class="admin-col-actions">
+                <button type="button"
+                        class="admin-icon-btn"
+                        (click)="startEditProduct(product)"
+                        aria-label="Edit product">
+                  <i class="fas fa-pen"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ───────── MANAGE USERS ───────── -->
+    <section *ngIf="view === 'users'" class="admin-panel">
+      <header class="admin-panel-head">
+        <button type="button" class="admin-back" (click)="backToDashboard()" aria-label="Back to admin dashboard">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div>
+          <h1>Manage User Roles</h1>
+          <p>Edit a user's profile details and change their role between <strong>User</strong> and <strong>Admin</strong>.</p>
+        </div>
+        <button type="button" class="admin-btn admin-btn-ghost admin-refresh" (click)="loadUsers()" [disabled]="isLoadingUsers">
+          <i class="fas fa-sync" [class.fa-spin]="isLoadingUsers"></i> Refresh
+        </button>
+      </header>
+
+      <p class="admin-alert admin-alert-success" *ngIf="userSaveSuccess">
+        <i class="fas fa-check-circle"></i> {{ userSaveSuccess }}
+      </p>
+      <p class="admin-alert admin-alert-error" *ngIf="userSaveError">
+        <i class="fas fa-exclamation-circle"></i> {{ userSaveError }}
+      </p>
+
+      <!-- Search across username / email / full name / phone -->
+      <div class="admin-search">
+        <i class="fas fa-search admin-search-icon"></i>
+        <input type="text"
+               class="admin-search-input"
+               [(ngModel)]="userSearchQuery"
+               name="userSearchQuery"
+               placeholder="Search by username, email, name or phone…"
+               aria-label="Search users" />
+        <button type="button"
+                class="admin-search-clear"
+                *ngIf="userSearchQuery"
+                (click)="clearUserSearch()"
+                aria-label="Clear search">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="admin-loading" *ngIf="isLoadingUsers">
+        <div class="admin-spinner"></div>
+        <p>Loading users…</p>
+      </div>
+
+      <div class="admin-empty" *ngIf="!isLoadingUsers && users.length === 0">
+        <i class="fas fa-user-slash"></i>
+        <p>No users found.</p>
+      </div>
+
+      <div class="admin-empty"
+           *ngIf="!isLoadingUsers && users.length > 0 && filteredUsers.length === 0">
+        <i class="fas fa-search"></i>
+        <p>No users match "{{ userSearchQuery }}".</p>
+      </div>
+
+      <div class="admin-table-wrap"
+           *ngIf="!isLoadingUsers && filteredUsers.length > 0">
+        <table class="admin-table admin-table-slim">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Full name</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th class="admin-col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers">
+              <td class="admin-cell-strong">{{ user.username }}</td>
+              <td>{{ user.email || '—' }}</td>
+              <td>{{ user.fullName || '—' }}</td>
+              <td>{{ user.phoneNumber || '—' }}</td>
+              <td>
+                <span class="admin-role-pill"
+                      [class.admin-role-admin]="(user.role || '').toLowerCase() === 'admin'">
+                  {{ user.role || 'user' }}
+                </span>
+              </td>
+              <td class="admin-col-actions">
+                <button type="button"
+                        class="admin-icon-btn"
+                        (click)="startEdit(user)"
+                        aria-label="Edit user">
+                  <i class="fas fa-pen"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── EDIT USER MODAL (all fields, opens on row Edit click) ─── -->
+    <div class="admin-modal-overlay"
+         *ngIf="editingUserId && editUser"
+         (click)="cancelEdit()"></div>
+    <aside class="admin-modal"
+           *ngIf="editingUserId && editUser"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="editUserTitle">
+      <header class="admin-modal-head">
+        <h2 id="editUserTitle">
+          <i class="fas fa-user-pen"></i> Edit user
+        </h2>
+        <button type="button"
+                class="admin-modal-close"
+                (click)="cancelEdit()"
+                [disabled]="isSavingUser"
+                aria-label="Close edit dialog">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <form class="admin-modal-body" (ngSubmit)="saveUser()">
+        <div class="admin-form-grid">
+          <label class="admin-field">
+            <span class="admin-label">Username</span>
+            <input class="admin-input" [(ngModel)]="editUser.username" name="edit-username" />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Role</span>
+            <select class="admin-input admin-select" [(ngModel)]="editUser.role" name="edit-role">
+              <option *ngFor="let opt of roleOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </label>
+
+          <label class="admin-field admin-field-span-2">
+            <span class="admin-label">Email</span>
+            <input class="admin-input" type="email" [(ngModel)]="editUser.email" name="edit-email" />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Full name</span>
+            <input class="admin-input" [(ngModel)]="editUser.fullName" name="edit-fullName" />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Phone</span>
+            <input class="admin-input" type="number" [(ngModel)]="editUser.phoneNumber" name="edit-phone" />
+          </label>
+
+          <label class="admin-field admin-field-span-2">
+            <span class="admin-label">Shipping address</span>
+            <input class="admin-input" [(ngModel)]="editUser.defaultShippingAddress" name="edit-addr" />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">City</span>
+            <input class="admin-input" [(ngModel)]="editUser.city" name="edit-city" />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">State</span>
+            <input class="admin-input" [(ngModel)]="editUser.state" name="edit-state" />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Zip</span>
+            <input class="admin-input" [(ngModel)]="editUser.zipCode" name="edit-zip" />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Country</span>
+            <input class="admin-input" [(ngModel)]="editUser.country" name="edit-country" />
+          </label>
+        </div>
+
+        <div class="admin-modal-foot">
+          <button type="button"
+                  class="admin-btn admin-btn-ghost"
+                  (click)="cancelEdit()"
+                  [disabled]="isSavingUser">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="admin-btn admin-btn-primary"
+                  [disabled]="isSavingUser">
+            <i class="fas"
+               [class.fa-spinner]="isSavingUser"
+               [class.fa-spin]="isSavingUser"
+               [class.fa-check]="!isSavingUser"></i>
+            {{ isSavingUser ? 'Saving…' : 'Save changes' }}
+          </button>
+        </div>
+      </form>
+    </aside>
+
+    <!-- ─── EDIT PRODUCT MODAL ─── -->
+    <div class="admin-modal-overlay"
+         *ngIf="editingProductId && editProduct"
+         (click)="cancelEditProduct()"></div>
+    <aside class="admin-modal"
+           *ngIf="editingProductId && editProduct"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="editProductTitle">
+      <header class="admin-modal-head">
+        <h2 id="editProductTitle">
+          <i class="fas fa-box-open"></i> Edit product
+        </h2>
+        <button type="button"
+                class="admin-modal-close"
+                (click)="cancelEditProduct()"
+                [disabled]="isSavingProductEdit"
+                aria-label="Close edit dialog">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <form class="admin-modal-body" (ngSubmit)="updateProduct()">
+
+        <div class="admin-modal-preview" *ngIf="editProduct.imageUrl">
+          <img [src]="editProduct.imageUrl" [alt]="editProduct.productName" />
+        </div>
+
+        <div class="admin-form-grid">
+          <label class="admin-field admin-field-span-2">
+            <span class="admin-label">Product name *</span>
+            <input class="admin-input"
+                   [(ngModel)]="editProduct.productName"
+                   name="edit-prod-name"
+                   required />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Price (₹) *</span>
+            <input class="admin-input"
+                   type="number"
+                   min="0"
+                   step="0.01"
+                   [(ngModel)]="editProduct.price"
+                   name="edit-prod-price"
+                   required />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Stock status</span>
+            <select class="admin-input admin-select"
+                    [(ngModel)]="editProduct.stockStatus"
+                    name="edit-prod-stock">
+              <option *ngFor="let opt of stockOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </label>
+
+          <label class="admin-field admin-field-span-2">
+            <span class="admin-label">Image URL *</span>
+            <input class="admin-input"
+                   [(ngModel)]="editProduct.imageUrl"
+                   name="edit-prod-image"
+                   required />
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Weighing scale</span>
+            <select class="admin-input admin-select"
+                    [(ngModel)]="editProduct.weighingScale"
+                    name="edit-prod-scale">
+              <option *ngFor="let opt of weighingScaleOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </label>
+
+          <label class="admin-field">
+            <span class="admin-label">Available pack sizes</span>
+            <input class="admin-input"
+                   [(ngModel)]="editProduct.availableQuantitiesText"
+                   name="edit-prod-quantities"
+                   placeholder="e.g. 0.5, 1, 2" />
+            <small class="admin-hint">Numbers separated by commas or spaces.</small>
+          </label>
+        </div>
+
+        <div class="admin-modal-foot">
+          <button type="button"
+                  class="admin-btn admin-btn-ghost"
+                  (click)="cancelEditProduct()"
+                  [disabled]="isSavingProductEdit">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="admin-btn admin-btn-primary"
+                  [disabled]="isSavingProductEdit">
+            <i class="fas"
+               [class.fa-spinner]="isSavingProductEdit"
+               [class.fa-spin]="isSavingProductEdit"
+               [class.fa-check]="!isSavingProductEdit"></i>
+            {{ isSavingProductEdit ? 'Updating…' : 'Update' }}
+          </button>
+        </div>
+      </form>
+    </aside>
+
+  </main>
+
+  <!-- ═══════ CART DRAWER ═══════ -->
+  <div class="cart-drawer-overlay" [class.active]="isCartOpen" (click)="closeCart()"></div>
+  <aside class="cart-drawer" [class.open]="isCartOpen">
+    <div class="drawer-header">
+      <div class="drawer-title-wrap">
+        <i class="fas fa-shopping-bag drawer-title-icon"></i>
+        <h2>Your Cart</h2>
+        <span class="drawer-count" *ngIf="cartItems.length > 0">{{ getCartItemCount() }} items</span>
+      </div>
+      <button class="drawer-close" (click)="closeCart()" aria-label="Close cart">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="drawer-empty" *ngIf="cartItems.length === 0">
+        <div class="empty-bag-icon"><i class="fas fa-shopping-bag"></i></div>
+        <h3>Your cart is empty</h3>
+        <p>Start shopping to add items.</p>
+        <button class="btn-shop-now" (click)="closeCart()" routerLink="/products">
+          <i class="fas fa-leaf"></i> Start Shopping
+        </button>
+      </div>
+
+      <div class="drawer-items" *ngIf="cartItems.length > 0">
+        <div class="drawer-item" *ngFor="let item of cartItems">
+          <div class="drawer-item-image">
+            <img [src]="item.imageUrl || 'assets/placeholder.png'" [alt]="item.productName || 'Product'" />
+          </div>
+          <div class="drawer-item-info">
+            <h4>{{ item.productName || 'Product #' + item.productId }}</h4>
+            <div class="drawer-item-meta">
+              <span class="drawer-item-qty">Qty: {{ item.quantity }}</span>
+              <span class="drawer-item-price">₹{{ (item.price * item.quantity) | number:'1.0-0' }}</span>
+            </div>
+          </div>
+          <button class="drawer-item-remove" (click)="removeCartItem(item.productId)" aria-label="Remove item">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-footer" *ngIf="cartItems.length > 0">
+      <div class="drawer-subtotal">
+        <span>Subtotal</span>
+        <span class="subtotal-amount">₹{{ getCartTotal() | number:'1.0-0' }}</span>
+      </div>
+      <button class="drawer-checkout-btn" routerLink="/cart" (click)="closeCart()">
+        Proceed to Checkout <i class="fas fa-arrow-right"></i>
+      </button>
+      <button class="drawer-continue-btn" (click)="closeCart()">
+        Continue Shopping
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <span class="brand-name">Southern</span>
+          <span class="brand-sub">GROVES</span>
+        </div>
+        <p class="footer-tagline">Chosen Carefully, Delivered Fresh.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Quick Links</h4>
+        <a routerLink="/products">Buy Fruits</a>
+        <a routerLink="/my-account">My Account</a>
+        <a routerLink="/products">About Us</a>
+      </div>
+      <div class="footer-links-group">
+        <h4>Support</h4>
+        <a href="#">Contact Us</a>
+        <a href="#">Shipping Info</a>
+        <a href="#">Return Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Southern Groves. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/919167999411" class="whatsapp-fab" target="_blank" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+</div>

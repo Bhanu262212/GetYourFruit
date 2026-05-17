@@ -5,6 +5,8 @@ export interface Product {
   imageUrl: string;
   stockStatus?: string;
   avgUserRating?: number;
+  availableQuantities?: number[];
+  weighingScale?: string;
   images?: string[];
   description?: string;
   rating?: number;

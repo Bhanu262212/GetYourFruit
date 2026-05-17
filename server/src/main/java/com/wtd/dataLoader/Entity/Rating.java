@@ -3,27 +3,27 @@ package com.wtd.dataLoader.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
-import java.util.List;
+import java.time.Instant;
 
 @Data
 @Document
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+public class Rating {
 
     @Id
+    @Generated
     private String id;
-    private String productName;
-    private double price;
-    private String imageUrl;
-    private String stockStatus;
-    private BigDecimal avgUserRating;
-    private List<Integer> availableQuantities;
-    private String weighingScale;
+    private String userId;
+    private String username;
+    private String feedbackMessage;
+    private String productId;
+    private double userRating;
+    private Instant createdAt;
 }
